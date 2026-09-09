@@ -23,7 +23,7 @@ npm run install:all
 npm run dev
 ```
 
-- App: http://localhost:5174 · API: http://localhost:5060
+- App: http://localhost:5174 · API: http://localhost:5065
 - Data persists to `backend/.data/db.json` (`npm run reset:data` to reseed)
 
 Seeded accounts:

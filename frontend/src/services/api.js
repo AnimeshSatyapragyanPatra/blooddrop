@@ -1,6 +1,6 @@
 // In production the API is same-origin (/api/* on Vercel). In dev it points at
 // the standalone Express server.
-const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:5060" : "");
+const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:5065" : "");
 
 export async function api(path, { method = "GET", body, token, signal } = {}) {
   const res = await fetch(`${API_URL}${path}`, {

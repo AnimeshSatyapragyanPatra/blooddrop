@@ -7,7 +7,7 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // automatically whenever credentials are absent.
 const MOCK = import.meta.env.VITE_MOCK === "1" || !url || !anonKey;
 
-const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:5060" : "");
+const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:5065" : "");
 const SESSION_KEY = "blooddrop_mock_session";
 
 function createMockClient() {

@@ -38,6 +38,8 @@ export default function AppLayout() {
   // Polling keeps the badge live in both mock and Supabase mode; swapping in
   // Supabase Realtime later only changes this effect.
   useEffect(() => {
+    if (!token) return undefined;
+
     let active = true;
     async function poll() {
       try {

@@ -64,6 +64,18 @@ try {
   await call("/api/admin/overview", { token: donorToken, expect: 403 });
   check("donor blocked from admin", true);
 
+  console.log("\nseed integrity");
+  const seededBoard = await call("/api/requests/mine", { token: hospitalToken });
+  const seededDetail = await call(`/api/requests/${seededBoard.requests[0].id}`, { token: hospitalToken });
+  const COMPATIBLE = { "O-": ["O-"], "B+": ["O-", "O+", "B-", "B+"] };
+  check(
+    "every seeded alert is blood-compatible",
+    seededDetail.board.rows.every((r) =>
+      (COMPATIBLE[seededDetail.request.bloodGroup] || []).includes(r.bloodGroup)
+    ),
+    seededDetail.board.rows.map((r) => r.bloodGroup).join(",")
+  );
+
   console.log("\ngeo matching + compatibility");
   const preview = await call(
     "/api/requests/preview-matches?bloodGroup=A%2B&lat=23.5204&lng=87.3119&radiusKm=25",
@@ -255,7 +267,7 @@ try {
 
   console.log("\nadmin overview");
   const overview = await call("/api/admin/overview", { token: adminToken });
-  check("donor totals reported", overview.totals.donors === 15);
+  check("donor totals reported", overview.totals.donors === 16, String(overview.totals.donors));
   check("eligible subset smaller than total", overview.totals.eligibleDonors < overview.totals.donors);
   check("per-group breakdown present", Boolean(overview.byGroup["O+"]));
   check("top donors ranked", overview.topDonors.length > 0);

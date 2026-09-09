@@ -142,6 +142,7 @@ const SEED_DONORS = [
   ["Fatima Sheikh", "O+", 18.5, 190, 500, "email", [6, 6, 5, 0], false],
   ["Vikram Nair", "A+", 22.0, 95, 60, "sms", [3, 2, 1, 0], false],
   ["Kabir Das", "O-", 9.1, 340, null, "email", [3, 2, 1, 0], false],
+  ["Ritu Banerjee", "O-", 12.3, 15, 210, "inapp", [6, 4, 2, 0], false],
   ["Nandini Pal", "AB-", 5.5, 60, 400, "inapp", [5, 4, 2, 0], false],
   ["Tanvi Reddy", "B+", 7.7, 220, 15, "email", [4, 4, 3, 0], false],
   ["Deep Chatterjee", "O+", 25.5, 130, 180, "sms", [10, 7, 4, 1], true],
@@ -283,32 +284,53 @@ function seed() {
     created_at: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(),
   });
 
-  // A dispatch trail on the critical request: three alerted, two answered.
-  const oNegDonors = db.donors.filter((d) => ["O-"].includes(d.blood_group)).slice(0, 2);
-  const alerted = [...oNegDonors, db.donors.find((d) => d.user_id === ids.donor)].filter(Boolean);
-
-  alerted.forEach((donor, i) => {
+  // Dispatch trails. Only compatible donors are ever alerted — the same rule
+  // the matcher enforces (compatibleDonorGroups in lib/blood.js), so the seed
+  // cannot show a state the live app would never produce.
+  function seedAlert(requestId, point, donor, minutesAgo, response) {
     db.alerts.push({
       id: randomUUID(),
-      request_id: criticalId,
+      request_id: requestId,
       donor_user_id: donor.user_id,
       channel: donor.contact_pref,
       status: "sent",
-      distance_km: Math.round(haversineKm(hospitalPoint.lat, hospitalPoint.lng, donor.lat, donor.lng) * 10) / 10,
-      sent_at: new Date(Date.now() - 100 * 60 * 1000).toISOString(),
+      distance_km: Math.round(haversineKm(point.lat, point.lng, donor.lat, donor.lng) * 10) / 10,
+      sent_at: new Date(Date.now() - minutesAgo * 60 * 1000).toISOString(),
     });
-    if (i < 2) {
+    if (response) {
       db.responses.push({
         id: randomUUID(),
-        request_id: criticalId,
+        request_id: requestId,
         donor_user_id: donor.user_id,
-        status: i === 0 ? "available" : "unavailable",
-        note: i === 0 ? "Can reach the hospital within the hour." : "Out of town until Friday.",
+        status: response.status,
+        note: response.note,
         outcome: null,
-        responded_at: new Date(Date.now() - 80 * 60 * 1000).toISOString(),
+        responded_at: new Date(Date.now() - (minutesAgo - 20) * 60 * 1000).toISOString(),
       });
     }
+  }
+
+  const byName = (name) => {
+    const profile = db.profiles.find((p) => p.name === name);
+    return db.donors.find((d) => d.user_id === profile?.user_id);
+  };
+  const demoDonor = db.donors.find((d) => d.user_id === ids.donor);
+
+  // Critical O- request: only O- donors can help. One in, one out, one silent.
+  seedAlert(criticalId, hospitalPoint, byName("Imran Khan"), 100, {
+    status: "available",
+    note: "Can reach the hospital within the hour.",
   });
+  seedAlert(criticalId, hospitalPoint, byName("Kabir Das"), 100, {
+    status: "unavailable",
+    note: "Out of town until Friday.",
+  });
+  seedAlert(criticalId, hospitalPoint, byName("Ritu Banerjee"), 100, null);
+
+  // Routine B+ request: O+ and B+ donors both qualify, so the demo donor has a
+  // real alert waiting for them on first sign-in.
+  seedAlert(routineId, routinePoint, demoDonor, 45, null);
+  seedAlert(routineId, routinePoint, byName("Priya Sharma"), 45, null);
 
   // One open report so the moderation queue is not an empty state on first run.
   db.reports.push({
@@ -328,11 +350,11 @@ function seed() {
     id: randomUUID(),
     user_id: ids.donor,
     type: "alert",
-    title: "Critical: O- needed 1.3 km away",
-    body: "Durgapur Mission Hospital needs 2 units of O- within 8 hours.",
-    request_id: criticalId,
+    title: "Urgent: B+ needed nearby",
+    body: "Sadar Hospital, Durgapur needs 1 unit of B+ — your O+ blood is compatible.",
+    request_id: routineId,
     read: false,
-    created_at: new Date(Date.now() - 100 * 60 * 1000).toISOString(),
+    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
   });
 }
 
