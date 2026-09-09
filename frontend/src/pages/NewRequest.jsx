@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api, qs } from "../services/api.js";
 import LocationField from "../components/LocationField.jsx";
+import BloodGroupPicker from "../components/BloodGroupPicker.jsx";
 import { distance } from "../lib/format.js";
 import { ErrorBanner, Notice, PageHeader, ReliabilityMeter, VerifiedBadge } from "../components/ui.jsx";
 
@@ -133,17 +134,16 @@ export default function NewRequest() {
 
       <form onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="card space-y-5 p-6">
+          <BloodGroupPicker
+            value={form.bloodGroup}
+            onChange={(g) => setForm((f) => ({ ...f, bloodGroup: g }))}
+            groups={groups}
+            label="Blood group needed"
+            required
+            hint="We alert every compatible group, not just an exact match."
+          />
+
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="label" htmlFor="bloodGroup">Blood group needed</label>
-              <select id="bloodGroup" className="input" value={form.bloodGroup} onChange={set("bloodGroup")} required>
-                <option value="">Select…</option>
-                {groups.map((g) => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-              <p className="hint">We alert every compatible group, not just an exact match.</p>
-            </div>
             <div>
               <label className="label" htmlFor="units">Units needed</label>
               <input

@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
 import LocationField from "../components/LocationField.jsx";
+import BloodGroupPicker from "../components/BloodGroupPicker.jsx";
 import { ErrorBanner, Notice } from "../components/ui.jsx";
 
 export default function Register() {
@@ -62,6 +63,18 @@ export default function Register() {
     }
   }
 
+  // Everything the form still needs, named in the user's words. Checked here so
+  // a long form never fails on a server round trip for something visible.
+  const missing = [];
+  if (!form.name.trim()) missing.push("your name");
+  if (!form.phone.trim()) missing.push("a phone number");
+  if (!form.email.trim()) missing.push("an email");
+  if (form.password.length < 6) missing.push("a password of at least 6 characters");
+  if (role === "donor") {
+    if (!bloodGroup) missing.push("your blood group");
+    if (!location) missing.push("a location on the map");
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="text-2xl font-bold tracking-tight text-stone-900">Create your account</h1>
@@ -106,7 +119,7 @@ export default function Register() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="name">Full name</label>
-            <input id="name" className="input" value={form.name} onChange={set("name")} required />
+            <input id="name" className="input" value={form.name} onChange={set("name")} required autoFocus />
           </div>
           <div>
             <label className="label" htmlFor="phone">Phone number</label>
@@ -152,22 +165,15 @@ export default function Register() {
 
         {role === "donor" && (
           <>
+            <BloodGroupPicker
+              value={bloodGroup}
+              onChange={setBloodGroup}
+              groups={groups}
+              required
+              hint="Tap your group — this is what we match requests against."
+            />
+
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="label" htmlFor="bloodGroup">Blood group</label>
-                <select
-                  id="bloodGroup"
-                  className="input"
-                  value={bloodGroup}
-                  onChange={(e) => setBloodGroup(e.target.value)}
-                  required
-                >
-                  <option value="">Select…</option>
-                  {groups.map((g) => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
-                </select>
-              </div>
               <div>
                 <label className="label" htmlFor="lastDonation">
                   Last donation <span className="font-normal text-stone-400">(optional)</span>
@@ -216,7 +222,13 @@ export default function Register() {
           </>
         )}
 
-        <button className="btn-primary w-full" disabled={busy}>
+        {missing.length > 0 && (
+          <p className="text-sm text-stone-500">
+            Still needed: {missing.join(", ")}.
+          </p>
+        )}
+
+        <button className="btn-primary w-full" disabled={busy || missing.length > 0}>
           {busy ? "Creating account…" : "Create account"}
         </button>
       </form>

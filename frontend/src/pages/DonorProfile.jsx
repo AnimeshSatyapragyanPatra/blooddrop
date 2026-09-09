@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
 import LocationField from "../components/LocationField.jsx";
+import BloodGroupPicker from "../components/BloodGroupPicker.jsx";
 import {
   EligibilityPill, ErrorBanner, Notice, PageHeader, ReliabilityMeter, StatTile,
 } from "../components/ui.jsx";
@@ -99,16 +100,17 @@ export default function DonorProfile() {
       )}
 
       <form onSubmit={submit} className="card space-y-5 p-6">
+        <BloodGroupPicker
+          value={form.bloodGroup}
+          onChange={(g) => {
+            setForm((f) => ({ ...f, bloodGroup: g }));
+            setSaved(false);
+          }}
+          groups={groups}
+          required
+        />
+
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="label" htmlFor="group">Blood group</label>
-            <select id="group" className="input" value={form.bloodGroup} onChange={set("bloodGroup")} required>
-              <option value="">Select…</option>
-              {groups.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-          </div>
           <div>
             <label className="label" htmlFor="last">Last donation date</label>
             <input

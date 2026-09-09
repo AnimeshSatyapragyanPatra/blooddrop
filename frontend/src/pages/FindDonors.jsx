@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api, qs } from "../services/api.js";
 import LocationField from "../components/LocationField.jsx";
+import BloodGroupPicker from "../components/BloodGroupPicker.jsx";
 import { distance } from "../lib/format.js";
 import {
   BloodTag, EligibilityPill, EmptyState, ErrorBanner, Notice, PageHeader, ReliabilityMeter,
@@ -64,15 +65,13 @@ export default function FindDonors() {
 
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
         <aside className="card space-y-4 p-5">
-          <div>
-            <label className="label" htmlFor="group">Patient's blood group</label>
-            <select id="group" className="input" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)}>
-              {groups.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
-            <p className="hint">Results include every group that can safely give to {bloodGroup}.</p>
-          </div>
+          <BloodGroupPicker
+            value={bloodGroup}
+            onChange={setBloodGroup}
+            groups={groups}
+            label="Patient's blood group"
+            hint={`Results include every group that can safely give to ${bloodGroup}.`}
+          />
 
           <div>
             <label className="label" htmlFor="radius">Radius: {radiusKm} km</label>

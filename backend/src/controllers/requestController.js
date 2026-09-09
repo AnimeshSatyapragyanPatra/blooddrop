@@ -7,6 +7,22 @@ import { findMatchingDonors, publicDonor, clampRadius } from "../lib/matching.js
 import { deliver, notifyInApp } from "../lib/notify.js";
 
 const URGENCY = ["critical", "urgent", "routine"];
+
+/** One `where col in (...)` query, or nothing at all when there is nothing to ask for. */
+async function fetchIn(table, columns, column, values) {
+  if (!values || values.length === 0) return { data: [] };
+  return supabase.from(table).select(columns).in(column, values);
+}
+
+function groupBy(rows, key) {
+  const map = new Map();
+  for (const row of rows || []) {
+    const bucket = map.get(row[key]);
+    if (bucket) bucket.push(row);
+    else map.set(row[key], [row]);
+  }
+  return map;
+}
 const OPEN_STATUSES = ["open"];
 
 // How many donors a single dispatch reaches. Alerting everyone in range trains
@@ -112,20 +128,28 @@ export async function listMyRequests(req, res) {
 
   if (error) return res.status(500).json({ error: error.message });
 
-  const withCounts = [];
-  for (const request of data) {
-    const { data: responses } = await supabase.from("responses").select("status").eq("request_id", request.id);
-    const { count } = await supabase.from("alerts").select("id", { count: "exact", head: true }).eq("request_id", request.id);
-    withCounts.push({
+  // Two batched queries for the whole list, rather than two per request.
+  const requestIds = data.map((r) => r.id);
+  const [{ data: responses }, { data: alerts }] = await Promise.all([
+    fetchIn("responses", "status, request_id", "request_id", requestIds),
+    fetchIn("alerts", "id, request_id", "request_id", requestIds),
+  ]);
+
+  const responsesBy = groupBy(responses, "request_id");
+  const alertsBy = groupBy(alerts, "request_id");
+
+  const withCounts = data.map((request) => {
+    const mine = responsesBy.get(request.id) || [];
+    return {
       ...requestView(request, { isOwner: true }),
       stats: {
-        alerted: count || 0,
-        available: (responses || []).filter((r) => r.status === "available").length,
-        unavailable: (responses || []).filter((r) => r.status === "unavailable").length,
-        responded: (responses || []).length,
+        alerted: (alertsBy.get(request.id) || []).length,
+        available: mine.filter((r) => r.status === "available").length,
+        unavailable: mine.filter((r) => r.status === "unavailable").length,
+        responded: mine.length,
       },
-    });
-  }
+    };
+  });
 
   res.json({ requests: withCounts });
 }
@@ -147,15 +171,27 @@ export async function listNearbyRequests(req, res) {
   const { data: myResponses } = await supabase.from("responses").select("*").eq("donor_user_id", req.user.id);
   const responseByRequest = new Map((myResponses || []).map((r) => [r.request_id, r]));
 
+  // Narrow to what this donor can actually help with first, then look up every
+  // requester profile in one query instead of one per surviving request.
+  const eligible = requests.filter(
+    (request) =>
+      request.requester_id !== req.user.id &&
+      canDonate(donor.blood_group, request.blood_group) &&
+      haversineKm(donor.lat, donor.lng, request.lat, request.lng) <= radius
+  );
+
+  const { data: requesterProfiles } = await fetchIn(
+    "profiles",
+    "user_id, name, organization, org_type, verified",
+    "user_id",
+    [...new Set(eligible.map((r) => r.requester_id))]
+  );
+  const requesterBy = new Map((requesterProfiles || []).map((p) => [p.user_id, p]));
+
   const rows = [];
-  for (const request of requests) {
-    if (request.requester_id === req.user.id) continue;
-    if (!canDonate(donor.blood_group, request.blood_group)) continue;
-
+  for (const request of eligible) {
     const distance = haversineKm(donor.lat, donor.lng, request.lat, request.lng);
-    if (distance > radius) continue;
-
-    const requester = await requesterOf(request);
+    const requester = requesterBy.get(request.requester_id) || null;
     rows.push({
       ...requestView(request, { viewerResponse: responseByRequest.get(request.id) || null }),
       distanceKm: roundKm(distance),
@@ -220,18 +256,20 @@ async function responseBoard(request) {
   const { data: responses } = await supabase.from("responses").select("*").eq("request_id", request.id);
   const responseByDonor = new Map((responses || []).map((r) => [r.donor_user_id, r]));
 
+  // A dispatch can alert 25 donors. Looking each one up individually would be
+  // 50 sequential round trips against a real Supabase project; this is two.
+  const donorIds = (alerts || []).map((a) => a.donor_user_id);
+  const [{ data: profiles }, { data: donorRows }] = await Promise.all([
+    fetchIn("profiles", "user_id, name, phone", "user_id", donorIds),
+    fetchIn("donors", "*", "user_id", donorIds),
+  ]);
+  const profileBy = new Map((profiles || []).map((p) => [p.user_id, p]));
+  const donorBy = new Map((donorRows || []).map((d) => [d.user_id, d]));
+
   const rows = [];
   for (const alert of alerts || []) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("user_id, name, phone")
-      .eq("user_id", alert.donor_user_id)
-      .maybeSingle();
-    const { data: donor } = await supabase
-      .from("donors")
-      .select("*")
-      .eq("user_id", alert.donor_user_id)
-      .maybeSingle();
+    const profile = profileBy.get(alert.donor_user_id) || null;
+    const donor = donorBy.get(alert.donor_user_id) || null;
 
     const response = responseByDonor.get(alert.donor_user_id) || null;
     const accepted = response?.status === "available";
