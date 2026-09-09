@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-stone-100 text-stone-900 antialiased;
+}
+
+.input {
+  @apply w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-blood-500 focus:ring-4 focus:ring-blood-100 disabled:bg-stone-50 disabled:text-stone-500;
+}
+
+.label {
+  @apply mb-1.5 block text-sm font-medium text-stone-700;
+}
+
+.hint {
+  @apply mt-1.5 text-xs text-stone-500;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn-primary {
+  @apply btn bg-blood-600 text-white shadow-sm hover:bg-blood-700;
+}
+
+.btn-secondary {
+  @apply btn border border-stone-200 bg-white text-stone-700 hover:bg-stone-50;
+}
+
+.btn-ghost {
+  @apply btn text-stone-600 hover:bg-stone-100;
+}
+
+.btn-success {
+  @apply btn bg-emerald-600 text-white hover:bg-emerald-700;
+}
+
+.card {
+  @apply rounded-2xl border border-stone-200/80 bg-white shadow-card;
+}
+
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+}
+
+/* Leaflet needs an explicit height, and its panes must sit under our overlays. */
+.leaflet-container {
+  @apply h-full w-full rounded-xl;
+  z-index: 0;
+}
