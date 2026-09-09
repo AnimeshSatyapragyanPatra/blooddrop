@@ -8,3 +8,4 @@ backend/.data/
 *.log
 .vercel/
 supabase/.temp/
+.vercel
