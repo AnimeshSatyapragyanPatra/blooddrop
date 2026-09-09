@@ -101,9 +101,9 @@ export function StatTile({ label, value, sub, tone = "default" }) {
     warn: "text-amber-700",
   };
   return (
-    <div className="card p-4">
+    <div className="card p-4 transition hover:border-stone-300">
       <p className="text-xs font-medium uppercase tracking-wide text-stone-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold tabular-nums ${tones[tone]}`}>{value}</p>
+      <p className={`mt-1 text-3xl font-bold leading-none tabular-nums ${tones[tone]}`}>{value}</p>
       {sub && <p className="hint">{sub}</p>}
     </div>
   );
@@ -142,10 +142,24 @@ export function Notice({ tone = "info", children }) {
   return <div className={`rounded-xl border px-4 py-3 text-sm ${tones[tone]}`}>{children}</div>;
 }
 
-export function Spinner({ label = "Loading" }) {
+/**
+ * Card-shaped placeholders while data loads. Holding the layout's shape stops
+ * the page jumping when the real content lands.
+ */
+export function Spinner({ label = "Loading", rows = 3 }) {
   return (
-    <div className="grid place-items-center py-16 text-sm text-stone-500" role="status">
-      {label}…
+    <div role="status" aria-label={label} className="space-y-3">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="card flex items-center gap-4 p-5">
+          <div className="skeleton h-12 w-14 shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="skeleton h-3 w-24" />
+            <div className="skeleton h-4 w-2/3" />
+            <div className="skeleton h-3 w-1/3" />
+          </div>
+        </div>
+      ))}
+      <span className="sr-only">{label}…</span>
     </div>
   );
 }

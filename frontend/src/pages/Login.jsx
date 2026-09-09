@@ -54,7 +54,11 @@ export default function Login() {
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="hidden flex-col justify-between bg-ink p-10 text-white lg:flex">
         <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-xl bg-blood-600 text-lg font-bold">◆</span>
+          <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blood-500 to-blood-700 shadow-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
+              <path d="M12 2.7s6 6.6 6 10.5a6 6 0 0 1-12 0C6 9.3 12 2.7 12 2.7Z" />
+            </svg>
+          </span>
           <span className="text-lg font-semibold tracking-tight">BloodDrop</span>
         </div>
         <div className="max-w-md">
@@ -76,6 +80,19 @@ export default function Login() {
 
       <div className="grid place-items-center px-4 py-10">
         <div className="w-full max-w-md">
+          {/* The marketing panel is desktop-only, so phones get the mark here. */}
+          <div className="mb-8 flex items-center gap-3 lg:hidden">
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blood-500 to-blood-700 text-white shadow-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
+                <path d="M12 2.7s6 6.6 6 10.5a6 6 0 0 1-12 0C6 9.3 12 2.7 12 2.7Z" />
+              </svg>
+            </span>
+            <span>
+              <span className="block text-lg font-semibold tracking-tight text-stone-900">BloodDrop</span>
+              <span className="block text-xs text-stone-500">Emergency donor alerts</span>
+            </span>
+          </div>
+
           <h1 className="text-2xl font-bold tracking-tight text-stone-900">Sign in</h1>
           <p className="mt-1 text-sm text-stone-500">
             New here?{" "}

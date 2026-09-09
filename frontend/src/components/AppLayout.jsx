@@ -2,28 +2,32 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
+import {
+  IconBell, IconPin, IconPlus, IconList, IconUser, IconSearch,
+  IconBadge, IconChart, IconFlag, IconShield, IconInbox, IconDrop,
+} from "./icons.jsx";
 
 const NAV = {
   donor: [
-    { to: "/home", label: "Alerts for me", end: true },
-    { to: "/nearby", label: "Nearby requests" },
-    { to: "/requests/new", label: "Post a request" },
-    { to: "/requests", label: "My requests", end: true },
-    { to: "/profile", label: "My donor profile" },
+    { to: "/home", label: "Alerts for me", end: true, icon: IconBell },
+    { to: "/nearby", label: "Nearby requests", icon: IconPin },
+    { to: "/requests/new", label: "Post a request", icon: IconPlus },
+    { to: "/requests", label: "My requests", end: true, icon: IconList },
+    { to: "/profile", label: "My donor profile", icon: IconUser },
   ],
   requester: [
-    { to: "/requests", label: "My requests", end: true },
-    { to: "/requests/new", label: "Post a request" },
-    { to: "/donors", label: "Find donors" },
-    { to: "/profile", label: "Donor profile" },
-    { to: "/verification", label: "Get verified" },
+    { to: "/requests", label: "My requests", end: true, icon: IconList },
+    { to: "/requests/new", label: "Post a request", icon: IconPlus },
+    { to: "/donors", label: "Find donors", icon: IconSearch },
+    { to: "/profile", label: "Donor profile", icon: IconUser },
+    { to: "/verification", label: "Get verified", icon: IconBadge },
   ],
   admin: [
-    { to: "/admin", label: "Overview", end: true },
-    { to: "/admin/reports", label: "Moderation queue" },
-    { to: "/admin/verifications", label: "Verification queue" },
-    { to: "/donors", label: "Find donors" },
-    { to: "/requests/new", label: "Post a request" },
+    { to: "/admin", label: "Overview", end: true, icon: IconChart },
+    { to: "/admin/reports", label: "Moderation queue", icon: IconFlag },
+    { to: "/admin/verifications", label: "Verification queue", icon: IconShield },
+    { to: "/donors", label: "Find donors", icon: IconSearch },
+    { to: "/requests/new", label: "Post a request", icon: IconPlus },
   ],
 };
 
@@ -67,7 +71,9 @@ export default function AppLayout() {
       <aside className="bg-ink px-5 py-5 text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-blood-600 text-lg font-bold">◆</span>
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-blood-500 to-blood-700 text-white shadow-sm">
+              <IconDrop className="h-5 w-5" />
+            </span>
             <span>
               <span className="block font-semibold tracking-tight">BloodDrop</span>
               <span className="block text-xs uppercase tracking-wider text-stone-400">{user.role}</span>
@@ -91,11 +97,14 @@ export default function AppLayout() {
               end={link.end}
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
-                `block rounded-xl px-3 py-2.5 text-sm font-medium ${
-                  isActive ? "bg-white/10 text-white" : "text-stone-300 hover:bg-white/5 hover:text-white"
+                `relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-full before:bg-blood-500"
+                    : "text-stone-400 hover:bg-white/5 hover:text-white"
                 }`
               }
             >
+              <link.icon className="h-4 w-4 shrink-0" />
               {link.label}
             </NavLink>
           ))}
@@ -104,12 +113,15 @@ export default function AppLayout() {
             to="/notifications"
             onClick={() => setMenuOpen(false)}
             className={({ isActive }) =>
-              `flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium ${
-                isActive ? "bg-white/10 text-white" : "text-stone-300 hover:bg-white/5 hover:text-white"
+              `relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                isActive
+                  ? "bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-full before:bg-blood-500"
+                  : "text-stone-400 hover:bg-white/5 hover:text-white"
               }`
             }
           >
-            Inbox
+            <IconInbox className="h-4 w-4 shrink-0" />
+            <span className="flex-1">Inbox</span>
             {unread > 0 && (
               <span className="grid h-5 min-w-5 place-items-center rounded-full bg-blood-600 px-1.5 text-xs font-bold text-white">
                 {unread}

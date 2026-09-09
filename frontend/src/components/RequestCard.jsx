@@ -47,8 +47,15 @@ export default function RequestCard({ request, onResponded }) {
     }
   }
 
+  // A coloured edge so urgency registers before any text is read.
+  const edge = {
+    critical: "border-l-4 border-l-blood-600",
+    urgent: "border-l-4 border-l-amber-500",
+    routine: "border-l-4 border-l-sky-400",
+  }[request.urgency] || "";
+
   return (
-    <article className="card overflow-hidden">
+    <article className={`card overflow-hidden ${edge}`}>
       <div className="flex flex-wrap items-start gap-4 p-5">
         <BloodTag group={request.bloodGroup} size="lg" />
 

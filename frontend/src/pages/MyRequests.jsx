@@ -57,7 +57,7 @@ export default function MyRequests() {
       ) : (
         <div className="space-y-4">
           {requests.map((request) => (
-            <Link key={request.id} to={`/requests/${request.id}`} className="card block p-5 transition hover:shadow-lg">
+            <Link key={request.id} to={`/requests/${request.id}`} className="card-interactive block p-5">
               <div className="flex flex-wrap items-start gap-4">
                 <BloodTag group={request.bloodGroup} size="lg" />
                 <div className="min-w-56 flex-1">
