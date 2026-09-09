@@ -2,14 +2,14 @@
   "name": "blooddrop",
   "private": true,
   "version": "1.0.0",
-  "description": "BloodDrop — local blood & emergency donor alert network (React, Express, Supabase/PostGIS)",
+  "description": "BloodDrop \u2014 local blood & emergency donor alert network (React, Express, Supabase/PostGIS)",
   "type": "module",
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "dev": "concurrently -n backend,frontend -c red,green \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "dev:backend": "npm run dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend",
-    "reset:data": "rm -f backend/.data/db.json && echo 'mock data reset — restart the backend to reseed'"
+    "reset:data": "rm -f backend/.data/db.json && echo 'mock data reset \u2014 restart the backend to reseed'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
@@ -18,8 +18,7 @@
     "express": "^4.21.2"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "supabase": "^2.117.0"
+    "concurrently": "^9.1.2"
   },
   "engines": {
     "node": ">=18"
