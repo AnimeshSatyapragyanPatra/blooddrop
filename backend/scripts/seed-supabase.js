@@ -38,7 +38,7 @@ const { count: existing, error: countError } = await supabase
   .select("*", { count: "exact", head: true });
 
 if (countError) {
-  die(`Cannot read the profiles table — ${countError.message}\nRun supabase/migrations/001_schema.sql first.`);
+  die(`Cannot read the profiles table — ${countError.message}\nRun supabase/migrations/20260909000001_init_schema.sql first.`);
 }
 if (existing > 0 && !force) {
   die(`This project already has ${existing} profile(s). Refusing to seed on top of real data.\nRe-run with --force if you are sure this is a throwaway demo project.`);

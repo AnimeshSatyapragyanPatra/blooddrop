@@ -7,9 +7,9 @@ site and serves `backend/src/app.js` as a serverless function under `/api/*`.
 
 Create a project, then in the SQL editor run:
 
-1. `supabase/migrations/001_schema.sql` — PostGIS, tables, indexes, the
+1. `supabase/migrations/20260909000001_init_schema.sql` — PostGIS, tables, indexes, the
    `match_donors` function and RLS policies.
-2. `supabase/migrations/002_promote_admin.sql` — edit the email first, then run
+2. `supabase/promote_admin.sql` — edit the email first, then run
    it to give yourself the moderator role.
 
 Confirm PostGIS is on:

@@ -81,17 +81,52 @@ requester *and* every donor who responded, so nobody makes a wasted trip.
 
 ## Using a real Supabase project
 
-1. Create a project, then in the SQL editor run
-   [`supabase/migrations/001_schema.sql`](supabase/migrations/001_schema.sql).
-   It enables PostGIS, creates the tables, the GiST indexes, the `match_donors`
-   function and row-level security policies.
-2. Fill in `backend/.env` and `frontend/.env.local` from the `.env.example`
-   files, and remove `MOCK_DB` / `VITE_MOCK`.
-3. Promote yourself with
-   [`002_promote_admin.sql`](supabase/migrations/002_promote_admin.sql).
+The Supabase CLI ships with the repo (`npx supabase`). From a clean checkout:
 
-Nothing else changes: the controllers call `supabase.rpc("match_donors", …)`
-either way.
+```bash
+npx supabase login                                    # opens your browser
+npx supabase link --project-ref <your-project-ref>    # asks for the DB password
+npx supabase db push                                  # applies the migration
+```
+
+`db push` runs [`supabase/migrations/20260909000001_init_schema.sql`](supabase/migrations/20260909000001_init_schema.sql),
+which enables PostGIS and creates the tables, GiST indexes, the `match_donors`
+function and the row-level-security policies. If you would rather not use the
+CLI, paste that same file into the Supabase SQL editor and run it.
+
+Then fill in the keys:
+
+| File | Variable | Where it comes from |
+|---|---|---|
+| `backend/.env` | `SUPABASE_URL` | Project Settings → Data API |
+| `backend/.env` | `SUPABASE_ANON_KEY` | API Keys → publishable (`sb_publishable_…`) |
+| `backend/.env` | `SUPABASE_SERVICE_ROLE_KEY` | API Keys → **secret** (`sb_secret_…`) — server only, never in a `VITE_` variable |
+| `frontend/.env.local` | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | same URL and publishable key |
+
+Remove `MOCK_DB` / `VITE_MOCK` once the keys are in, then check the wiring:
+
+```bash
+npm run verify:supabase --prefix backend
+```
+
+It checks the credentials, all eight tables, the PostGIS `match_donors` RPC, the
+generated geography column, Auth admin access and whether a moderator exists —
+printing the exact fix for anything that fails.
+
+A real project starts empty. To load the same demo dataset the offline mode
+uses (four demo accounts, 15 donors, two live requests, a dispatch trail):
+
+```bash
+npm run seed:supabase --prefix backend
+```
+
+It refuses to run if the project already has profiles, unless you pass
+`--force`. The demo accounts have published passwords — delete them before any
+real use. Finally, make yourself a moderator by editing the email in
+[`supabase/promote_admin.sql`](supabase/promote_admin.sql) and running it.
+
+Nothing in the app changes between modes: the controllers call
+`supabase.rpc("match_donors", …)` either way.
 
 ## Deploying
 

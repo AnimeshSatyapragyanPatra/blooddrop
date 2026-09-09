@@ -458,7 +458,7 @@ class Query {
 }
 
 // ---- RPC -------------------------------------------------------------------
-// Mirrors the PostGIS function in supabase/migrations/001_schema.sql so the
+// Mirrors the PostGIS function in supabase/migrations/20260909000001_init_schema.sql so the
 // controllers have one code path whether or not Supabase is configured.
 
 const RPCS = {

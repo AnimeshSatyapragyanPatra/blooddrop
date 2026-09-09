@@ -56,7 +56,7 @@ for (const table of TABLES) {
   const { error } = await supabase.from(table).select("*", { count: "exact", head: true });
   if (error) {
     bad(`table "${table}" is not reachable — ${error.message}`,
-        "run supabase/migrations/001_schema.sql in the Supabase SQL editor");
+        "run supabase/migrations/20260909000001_init_schema.sql in the Supabase SQL editor");
   } else ok(`table "${table}"`);
 }
 
@@ -70,7 +70,7 @@ if (rpcError) {
   const postgis = /st_dwithin|geography|postgis/i.test(rpcError.message);
   bad(`match_donors RPC failed — ${rpcError.message}`,
       postgis ? "PostGIS is not enabled: run  create extension if not exists postgis;"
-      : missing ? "run supabase/migrations/001_schema.sql — it creates the function"
+      : missing ? "run supabase/migrations/20260909000001_init_schema.sql — it creates the function"
       : "check the SQL editor for the full error");
 } else {
   ok(`match_donors returned ${rpcData.length} row(s)`);
@@ -78,7 +78,7 @@ if (rpcError) {
   if (rpcData.length) {
     const missingCols = shape.filter((c) => !(c in rpcData[0]));
     if (missingCols.length) {
-      bad(`RPC is missing columns: ${missingCols.join(", ")}`, "re-run 001_schema.sql; the function signature changed");
+      bad(`RPC is missing columns: ${missingCols.join(", ")}`, "re-run 20260909000001_init_schema.sql; the function signature changed");
     } else ok("RPC returns the expected columns");
   } else {
     console.log("      (no donors yet — that is expected on a fresh project)");
@@ -96,7 +96,7 @@ const { error: insertError } = await supabase.from("donors").insert({
 if (insertError && /foreign key|violates/i.test(insertError.message)) {
   ok("donors.user_id is correctly bound to auth.users (probe row rejected, as it should be)");
 } else if (insertError) {
-  bad(`could not write a probe donor — ${insertError.message}`, "check the donors table definition in 001_schema.sql");
+  bad(`could not write a probe donor — ${insertError.message}`, "check the donors table definition in 20260909000001_init_schema.sql");
 } else {
   ok("donors accepts a row and generates its geography point");
   await supabase.from("donors").delete().eq("user_id", probeId);
@@ -112,7 +112,7 @@ console.log("\nModerator account");
 const { data: admins } = await supabase.from("profiles").select("email").eq("role", "admin");
 if (!admins || admins.length === 0) {
   console.log("  ! no admin yet — the moderation and verification queues will be unreachable");
-  console.log("      fix: edit the email in supabase/migrations/002_promote_admin.sql and run it");
+  console.log("      fix: edit the email in supabase/promote_admin.sql and run it");
 } else ok(`admin: ${admins.map((a) => a.email).join(", ")}`);
 
 console.log(failed ? `\n${failed} problem(s) found.\n` : "\nSupabase is wired up correctly.\n");
