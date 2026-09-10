@@ -80,9 +80,9 @@ export default function DonorHome() {
           <div className="min-w-48 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <EligibilityPill eligibility={donor.eligibility} />
-              {donor.paused && <span className="chip bg-stone-200 text-stone-700">Alerts paused</span>}
+              {donor.paused && <span className="chip bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-200">Alerts paused</span>}
             </div>
-            <p className="mt-2 text-sm text-stone-600">
+            <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
               {donor.eligibility.eligible
                 ? "You are inside the eligible window — you will be alerted for matching requests nearby."
                 : `Your next eligible date is ${donor.eligibility.eligibleOn}. We will not alert you until then.`}
@@ -141,7 +141,7 @@ export default function DonorHome() {
 
       {answered.length > 0 && (
         <section className="mt-8">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">Already answered</h2>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">Already answered</h2>
           <div className="space-y-4">
             {answered.map((request) => (
               <RequestCard key={request.id} request={request} onResponded={load} />

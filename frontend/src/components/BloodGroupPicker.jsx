@@ -33,8 +33,8 @@ export default function BloodGroupPicker({
               className={`relative grid cursor-pointer place-items-center rounded-xl border py-2.5 text-sm font-bold transition
                 ${selected
                   ? "border-blood-600 bg-blood-600 text-white shadow-sm"
-                  : "border-stone-200 bg-white text-stone-700 hover:border-blood-300 hover:bg-blood-50"}
-                focus-within:ring-4 focus-within:ring-blood-100`}
+                  : "border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 hover:border-blood-300 hover:bg-blood-50 dark:hover:bg-blood-500/10"}
+                focus-within:ring-4 focus-within:ring-blood-100 dark:focus-within:ring-blood-500/20`}
             >
               <input
                 type="radio"

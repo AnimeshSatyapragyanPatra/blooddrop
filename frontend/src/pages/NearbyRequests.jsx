@@ -49,7 +49,7 @@ export default function NearbyRequests() {
         subtitle={`Open requests your ${donor.bloodGroup} blood can be used for.`}
         actions={
           <div className="flex items-center gap-2">
-            <label className="text-sm text-stone-500" htmlFor="radius">Within</label>
+            <label className="text-sm text-stone-500 dark:text-stone-400" htmlFor="radius">Within</label>
             <select
               id="radius"
               className="input w-28"

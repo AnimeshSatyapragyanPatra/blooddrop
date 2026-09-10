@@ -77,10 +77,10 @@ export default function Register() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-bold tracking-tight text-stone-900">Create your account</h1>
-      <p className="mt-1 text-sm text-stone-500">
+      <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">Create your account</h1>
+      <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
         Already registered?{" "}
-        <Link to="/login" className="font-semibold text-blood-700 hover:underline">
+        <Link to="/login" className="font-semibold text-blood-700 dark:text-blood-300 hover:underline">
           Sign in
         </Link>
       </p>
@@ -98,7 +98,7 @@ export default function Register() {
               <label
                 key={value}
                 className={`cursor-pointer rounded-xl border p-4 transition ${
-                  role === value ? "border-blood-500 bg-blood-50 ring-2 ring-blood-100" : "border-stone-200 hover:bg-stone-50"
+                  role === value ? "border-blood-500 bg-blood-50 dark:bg-blood-500/10 ring-2 ring-blood-100 dark:ring-blood-500/20" : "border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-900"
                 }`}
               >
                 <input
@@ -109,8 +109,8 @@ export default function Register() {
                   onChange={() => setRole(value)}
                   className="sr-only"
                 />
-                <span className="block text-sm font-semibold text-stone-900">{title}</span>
-                <span className="mt-0.5 block text-xs text-stone-500">{description}</span>
+                <span className="block text-sm font-semibold text-stone-900 dark:text-stone-50">{title}</span>
+                <span className="mt-0.5 block text-xs text-stone-500 dark:text-stone-400">{description}</span>
               </label>
             ))}
           </div>
@@ -154,7 +154,7 @@ export default function Register() {
         {role === "requester" && (
           <div>
             <label className="label" htmlFor="organization">
-              Hospital / blood bank <span className="font-normal text-stone-400">(optional)</span>
+              Hospital / blood bank <span className="font-normal text-stone-400 dark:text-stone-500">(optional)</span>
             </label>
             <input id="organization" className="input" value={form.organization} onChange={set("organization")} />
             <p className="hint">
@@ -176,7 +176,7 @@ export default function Register() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="label" htmlFor="lastDonation">
-                  Last donation <span className="font-normal text-stone-400">(optional)</span>
+                  Last donation <span className="font-normal text-stone-400 dark:text-stone-500">(optional)</span>
                 </label>
                 <input
                   id="lastDonation"
@@ -223,7 +223,7 @@ export default function Register() {
         )}
 
         {missing.length > 0 && (
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
             Still needed: {missing.join(", ")}.
           </p>
         )}

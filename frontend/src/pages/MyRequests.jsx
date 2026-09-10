@@ -7,10 +7,10 @@ import { timeAgo, timeUntil } from "../lib/format.js";
 import { BloodTag, EmptyState, ErrorBanner, PageHeader, Spinner, UrgencyChip, VerifiedBadge } from "../components/ui.jsx";
 
 const STATUS_CHIP = {
-  open: "bg-emerald-100 text-emerald-800",
-  fulfilled: "bg-sky-100 text-sky-800",
-  closed: "bg-stone-100 text-stone-600",
-  removed: "bg-blood-100 text-blood-800",
+  open: "bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300",
+  fulfilled: "bg-sky-100 dark:bg-sky-500/15 text-sky-800 dark:text-sky-300",
+  closed: "bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300",
+  removed: "bg-blood-100 dark:bg-blood-500/15 text-blood-800 dark:text-blood-300",
 };
 
 export default function MyRequests() {
@@ -67,10 +67,10 @@ export default function MyRequests() {
                     <span className={`chip ${STATUS_CHIP[request.status]}`}>{request.status}</span>
                     <VerifiedBadge verified={request.verified} />
                   </div>
-                  <h3 className="mt-2 text-base font-semibold text-stone-900">
+                  <h3 className="mt-2 text-base font-semibold text-stone-900 dark:text-stone-50">
                     {request.unitsNeeded} unit{request.unitsNeeded === 1 ? "" : "s"} · {request.hospitalName}
                   </h3>
-                  <p className="mt-0.5 text-sm text-stone-500">
+                  <p className="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
                     Posted {timeAgo(request.createdAt)}
                     {request.neededBy && <> · needed {timeUntil(request.neededBy)}</>}
                   </p>
@@ -78,15 +78,15 @@ export default function MyRequests() {
 
                 <dl className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <dt className="text-xs uppercase tracking-wide text-stone-400">Alerted</dt>
-                    <dd className="text-xl font-bold tabular-nums text-stone-800">{request.stats.alerted}</dd>
+                    <dt className="text-xs uppercase tracking-wide text-stone-400 dark:text-stone-500">Alerted</dt>
+                    <dd className="text-xl font-bold tabular-nums text-stone-800 dark:text-stone-100">{request.stats.alerted}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs uppercase tracking-wide text-stone-400">Available</dt>
-                    <dd className="text-xl font-bold tabular-nums text-emerald-700">{request.stats.available}</dd>
+                    <dt className="text-xs uppercase tracking-wide text-stone-400 dark:text-stone-500">Available</dt>
+                    <dd className="text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{request.stats.available}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs uppercase tracking-wide text-stone-400">Awaiting</dt>
+                    <dt className="text-xs uppercase tracking-wide text-stone-400 dark:text-stone-500">Awaiting</dt>
                     <dd className="text-xl font-bold tabular-nums text-amber-600">
                       {request.stats.alerted - request.stats.responded}
                     </dd>

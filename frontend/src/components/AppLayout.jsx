@@ -8,6 +8,7 @@ import {
   IconBadge, IconChart, IconFlag, IconShield, IconInbox,
 } from "./icons.jsx";
 import Logo from "./Logo.jsx";
+import ThemeToggle from "./ThemeToggle.jsx";
 
 const NAV = {
   donor: [
@@ -74,7 +75,7 @@ export default function AppLayout() {
             </span>
             <span>
               <span className="block font-semibold tracking-tight">BloodDrop</span>
-              <span className="block text-xs uppercase tracking-wider text-stone-400">{user.role}</span>
+              <span className="block text-xs uppercase tracking-wider text-stone-400 dark:text-stone-500">{user.role}</span>
             </span>
           </Link>
           <button
@@ -98,7 +99,7 @@ export default function AppLayout() {
                 `relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                   isActive
                     ? "bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-full before:bg-blood-500"
-                    : "text-stone-400 hover:bg-white/5 hover:text-white"
+                    : "text-stone-400 dark:text-stone-500 hover:bg-white/5 hover:text-white"
                 }`
               }
             >
@@ -114,7 +115,7 @@ export default function AppLayout() {
               `relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                 isActive
                   ? "bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-full before:bg-blood-500"
-                  : "text-stone-400 hover:bg-white/5 hover:text-white"
+                  : "text-stone-400 dark:text-stone-500 hover:bg-white/5 hover:text-white"
               }`
             }
           >
@@ -130,15 +131,18 @@ export default function AppLayout() {
 
         <div className={`mt-8 border-t border-white/10 pt-4 lg:mt-auto ${menuOpen ? "block" : "hidden"} lg:block`}>
           <p className="truncate text-sm font-medium">{user.organization || user.name}</p>
-          <p className="truncate text-xs text-stone-400">{user.email}</p>
+          <p className="truncate text-xs text-stone-400 dark:text-stone-500">{user.email}</p>
           {donor && (
-            <p className="mt-1 text-xs text-stone-400">
+            <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">
               {donor.bloodGroup} · {donor.eligibility.eligible ? "eligible" : `${donor.eligibility.daysRemaining} d to go`}
             </p>
           )}
-          <button onClick={handleLogout} className="mt-3 text-sm text-stone-300 hover:text-white">
-            Sign out
-          </button>
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <button onClick={handleLogout} className="text-sm text-stone-300 hover:text-white">
+              Sign out
+            </button>
+            <ThemeToggle className="-mr-2" />
+          </div>
         </div>
       </aside>
 

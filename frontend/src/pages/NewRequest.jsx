@@ -125,7 +125,7 @@ export default function NewRequest() {
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <VerifiedBadge verified={user.verified} organization={user.organization} />
-        <span className="text-sm text-stone-500">
+        <span className="text-sm text-stone-500 dark:text-stone-400">
           {user.verified
             ? "Your requests carry the verified badge."
             : "Unverified requests are still delivered, but donors see them without a badge."}
@@ -163,7 +163,7 @@ export default function NewRequest() {
             </div>
             <div>
               <label className="label" htmlFor="patient">
-                Patient reference <span className="font-normal text-stone-400">(optional)</span>
+                Patient reference <span className="font-normal text-stone-400 dark:text-stone-500">(optional)</span>
               </label>
               <input id="patient" className="input" value={form.patientName} onChange={set("patientName")} />
               <p className="hint">Only you and moderators see this — donors never do.</p>
@@ -182,7 +182,7 @@ export default function NewRequest() {
             </div>
             <div>
               <label className="label" htmlFor="neededBy">
-                Needed by <span className="font-normal text-stone-400">(optional)</span>
+                Needed by <span className="font-normal text-stone-400 dark:text-stone-500">(optional)</span>
               </label>
               <input id="neededBy" className="input" type="datetime-local" value={form.neededBy} onChange={set("neededBy")} />
             </div>
@@ -219,7 +219,7 @@ export default function NewRequest() {
               onChange={(e) => setRadiusKm(Number(e.target.value))}
               className="w-full accent-blood-600"
             />
-            <div className="flex justify-between text-xs text-stone-400">
+            <div className="flex justify-between text-xs text-stone-400 dark:text-stone-500">
               {RADII.map((km) => (
                 <span key={km}>{km}</span>
               ))}
@@ -233,17 +233,17 @@ export default function NewRequest() {
 
         <aside className="space-y-4">
           <div className="card p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500">Who this will reach</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">Who this will reach</h2>
             {!canPreview ? (
-              <p className="mt-3 text-sm text-stone-500">
+              <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
                 Choose a blood group and drop a pin to see the matching donors.
               </p>
             ) : previewing ? (
-              <p className="mt-3 text-sm text-stone-500">Checking…</p>
+              <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">Checking…</p>
             ) : preview ? (
               <>
-                <p className="mt-2 text-3xl font-bold tabular-nums text-blood-700">{preview.willAlert}</p>
-                <p className="text-sm text-stone-600">
+                <p className="mt-2 text-3xl font-bold tabular-nums text-blood-700 dark:text-blood-300">{preview.willAlert}</p>
+                <p className="text-sm text-stone-600 dark:text-stone-300">
                   eligible donors alerted now
                   {preview.count > preview.willAlert && ` (of ${preview.count} matched)`}
                 </p>
@@ -257,10 +257,10 @@ export default function NewRequest() {
                 )}
                 <ul className="mt-4 space-y-3">
                   {preview.donors.slice(0, 5).map((d) => (
-                    <li key={d.userId} className="flex items-start justify-between gap-3 border-t border-stone-100 pt-3">
+                    <li key={d.userId} className="flex items-start justify-between gap-3 border-t border-stone-100 dark:border-stone-800 pt-3">
                       <div>
-                        <p className="text-sm font-semibold text-stone-800">{d.bloodGroup}</p>
-                        <p className="text-xs text-stone-500">{d.areaLabel || "Nearby"} · {distance(d.distanceKm)}</p>
+                        <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">{d.bloodGroup}</p>
+                        <p className="text-xs text-stone-500 dark:text-stone-400">{d.areaLabel || "Nearby"} · {distance(d.distanceKm)}</p>
                       </div>
                       <ReliabilityMeter reliability={d.reliability} compact />
                     </li>

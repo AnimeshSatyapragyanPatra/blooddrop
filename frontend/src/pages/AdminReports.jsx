@@ -59,13 +59,13 @@ export default function AdminReports() {
         title="Moderation queue"
         subtitle="Flagged requests and users, newest first."
         actions={
-          <div className="flex gap-1 rounded-xl bg-stone-200/60 p-1">
+          <div className="flex gap-1 rounded-xl bg-stone-200/60 dark:bg-stone-800/60 p-1">
             {TABS.map(([value, label]) => (
               <button
                 key={value}
                 onClick={() => setStatus(value)}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-                  status === value ? "bg-white text-stone-900 shadow-sm" : "text-stone-600 hover:text-stone-900"
+                  status === value ? "bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-50 shadow-sm" : "text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-50"
                 }`}
               >
                 {label}
@@ -96,13 +96,13 @@ export default function AdminReports() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="chip bg-amber-100 text-amber-800">{REASON_LABEL[report.reason]}</span>
-                    <span className="chip bg-stone-100 text-stone-600">{report.targetType}</span>
-                    {report.target.verified && <span className="chip bg-sky-100 text-sky-800">Verified requester</span>}
+                    <span className="chip bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300">{REASON_LABEL[report.reason]}</span>
+                    <span className="chip bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">{report.targetType}</span>
+                    {report.target.verified && <span className="chip bg-sky-100 dark:bg-sky-500/15 text-sky-800 dark:text-sky-300">Verified requester</span>}
                   </div>
-                  <p className="mt-2 text-base font-semibold text-stone-900">{report.target.label}</p>
-                  {report.details && <p className="mt-1 text-sm text-stone-600">“{report.details}”</p>}
-                  <p className="mt-1 text-xs text-stone-400">
+                  <p className="mt-2 text-base font-semibold text-stone-900 dark:text-stone-50">{report.target.label}</p>
+                  {report.details && <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">“{report.details}”</p>}
+                  <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">
                     Reported by {report.reportedBy} · {timeAgo(report.createdAt)}
                     {report.target.status && <> · request is {report.target.status}</>}
                   </p>
@@ -115,9 +115,9 @@ export default function AdminReports() {
               </div>
 
               {report.status === "open" ? (
-                <div className="mt-4 border-t border-stone-100 pt-4">
+                <div className="mt-4 border-t border-stone-100 dark:border-stone-800 pt-4">
                   <label className="label" htmlFor={`note-${report.id}`}>
-                    Moderator note <span className="font-normal text-stone-400">(shown to the people notified)</span>
+                    Moderator note <span className="font-normal text-stone-400 dark:text-stone-500">(shown to the people notified)</span>
                   </label>
                   <input
                     id={`note-${report.id}`}
@@ -140,7 +140,7 @@ export default function AdminReports() {
                 </div>
               ) : (
                 report.resolutionNote && (
-                  <p className="mt-3 border-t border-stone-100 pt-3 text-sm text-stone-500">
+                  <p className="mt-3 border-t border-stone-100 dark:border-stone-800 pt-3 text-sm text-stone-500 dark:text-stone-400">
                     Moderator note: {report.resolutionNote}
                   </p>
                 )

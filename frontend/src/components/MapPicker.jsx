@@ -54,7 +54,7 @@ export default function MapPicker({
   const markers = useMemo(() => points.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng)), [points]);
 
   return (
-    <div className={`overflow-hidden rounded-xl border border-stone-200 ${className}`} style={{ height }}>
+    <div className={`overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 ${className}`} style={{ height }}>
       <MapContainer center={[start.lat, start.lng]} zoom={zoom} scrollWheelZoom className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

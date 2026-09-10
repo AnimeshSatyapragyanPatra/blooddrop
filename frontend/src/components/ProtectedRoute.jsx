@@ -5,7 +5,7 @@ export default function ProtectedRoute({ roles, children }) {
   const { loading, user } = useAuth();
 
   if (loading) {
-    return <div className="grid min-h-screen place-items-center text-stone-500">Loading…</div>;
+    return <div className="grid min-h-screen place-items-center text-stone-500 dark:text-stone-400">Loading…</div>;
   }
   if (!user) return <Navigate to="/login" replace />;
   if (roles && !roles.includes(user.role)) return <Navigate to="/unauthorized" replace />;

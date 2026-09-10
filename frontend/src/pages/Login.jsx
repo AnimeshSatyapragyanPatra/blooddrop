@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { IS_MOCK } from "../services/supabase.js";
 import { ErrorBanner } from "../components/ui.jsx";
 import Logo from "../components/Logo.jsx";
+import ThemeToggle from "../components/ThemeToggle.jsx";
 
 const DEMO = [
   ["Donor", "donor@blooddrop.test", "Donor123!"],
@@ -77,26 +78,32 @@ export default function Login() {
             <li className="flex gap-2"><span className="text-blood-400">✓</span> Hospitals and blood banks carry a moderator-checked badge</li>
           </ul>
         </div>
-        <p className="relative text-xs text-stone-500">Built with React, Express and Supabase + PostGIS.</p>
+        <p className="relative text-xs text-stone-500 dark:text-stone-400">Built with React, Express and Supabase + PostGIS.</p>
       </div>
 
-      <div className="grid place-items-center px-4 py-10">
+      <div className="relative grid place-items-center px-4 py-10">
+        {/* Signed-out visitors need the theme switch too — the sidebar one is
+            only reachable once you are in. */}
+        <div className="absolute right-4 top-4">
+          <ThemeToggle className="text-stone-500 hover:bg-stone-200/60 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100" />
+        </div>
+
         <div className="w-full max-w-md">
           {/* The marketing panel is desktop-only, so phones get the mark here. */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-blood-50 ring-1 ring-blood-100">
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-blood-50 dark:bg-blood-500/10 ring-1 ring-blood-100 dark:ring-blood-500/20">
               <Logo className="h-7 w-7" withRing />
             </span>
             <span>
-              <span className="block text-lg font-semibold tracking-tight text-stone-900">BloodDrop</span>
-              <span className="block text-xs text-stone-500">Emergency donor alerts</span>
+              <span className="block text-lg font-semibold tracking-tight text-stone-900 dark:text-stone-50">BloodDrop</span>
+              <span className="block text-xs text-stone-500 dark:text-stone-400">Emergency donor alerts</span>
             </span>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-stone-900">Sign in</h1>
-          <p className="mt-1 text-sm text-stone-500">
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">Sign in</h1>
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             New here?{" "}
-            <Link to="/register" className="font-semibold text-blood-700 hover:underline">
+            <Link to="/register" className="font-semibold text-blood-700 dark:text-blood-300 hover:underline">
               Create an account
             </Link>
           </p>
@@ -135,7 +142,7 @@ export default function Login() {
 
           {IS_MOCK && (
             <div className="card mt-4 p-5">
-              <p className="text-sm font-semibold text-stone-800">Demo accounts</p>
+              <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">Demo accounts</p>
               <p className="hint">Running on the built-in mock database — no Supabase project needed.</p>
               <div className="mt-3 grid gap-2">
                 {DEMO.map(([label, demoEmail, demoPassword]) => (
@@ -147,7 +154,7 @@ export default function Login() {
                     className="btn-secondary justify-between text-left"
                   >
                     <span className="font-semibold">{label}</span>
-                    <span className="text-xs text-stone-500">{demoEmail}</span>
+                    <span className="text-xs text-stone-500 dark:text-stone-400">{demoEmail}</span>
                   </button>
                 ))}
               </div>

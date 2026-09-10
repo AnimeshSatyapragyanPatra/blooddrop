@@ -6,14 +6,25 @@
   color-scheme: light;
 }
 
+:root.dark {
+  color-scheme: dark;
+}
+
 body {
   @apply bg-stone-100 text-stone-900 antialiased;
-  /* Inter: contextual alternates, and a straight-sided 1 so counts and
-     distances line up cleanly in the stat tiles. */
   letter-spacing: -0.004em;
   /* A barely-there warm wash, so large empty areas do not read as dead grey. */
   background-image: radial-gradient(60rem 40rem at 100% -10%, rgba(220, 38, 38, 0.05), transparent 60%);
   background-attachment: fixed;
+}
+
+/* Written as an explicit rule rather than `@apply dark:...` on body: outside a
+   @layer, Tailwind does not emit the dark variant, so the page would stay light
+   while every component on top of it went dark. */
+.dark body {
+  @apply bg-stone-950 text-stone-100;
+  /* Warmer and stronger here, or the dark ground reads as flat black. */
+  background-image: radial-gradient(60rem 40rem at 100% -10%, rgba(220, 38, 38, 0.13), transparent 60%);
 }
 
 /* Syne is a display face — it carries headings and the wordmark, never body
@@ -25,20 +36,20 @@ h2 {
 
 /* One visible focus style everywhere, for keyboard users. */
 :focus-visible {
-  @apply outline-none ring-4 ring-blood-100;
+  @apply outline-none ring-4 ring-blood-100 dark:ring-blood-500/30;
 }
 
 @layer components {
   .input {
-    @apply w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-blood-500 focus:ring-4 focus:ring-blood-100 disabled:bg-stone-50 disabled:text-stone-500;
+    @apply w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-blood-500 focus:ring-4 focus:ring-blood-100 disabled:bg-stone-50 disabled:text-stone-500 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:placeholder-stone-500 dark:focus:ring-blood-500/25 dark:disabled:bg-stone-800 dark:disabled:text-stone-500;
   }
 
   .label {
-    @apply mb-1.5 block text-sm font-medium text-stone-700;
+    @apply mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200;
   }
 
   .hint {
-    @apply mt-1.5 text-xs text-stone-500;
+    @apply mt-1.5 text-xs text-stone-500 dark:text-stone-400;
   }
 
   .btn {
@@ -50,11 +61,11 @@ h2 {
   }
 
   .btn-secondary {
-    @apply btn border border-stone-200 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 active:scale-[0.98];
+    @apply btn border border-stone-200 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 active:scale-[0.98] dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200 dark:hover:border-stone-600 dark:hover:bg-stone-800;
   }
 
   .btn-ghost {
-    @apply btn text-stone-600 hover:bg-stone-100;
+    @apply btn text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800;
   }
 
   .btn-success {
@@ -62,7 +73,7 @@ h2 {
   }
 
   .card {
-    @apply rounded-2xl border border-stone-200/80 bg-white shadow-card;
+    @apply rounded-2xl border border-stone-200/80 bg-white shadow-card dark:border-stone-800 dark:bg-stone-900 dark:shadow-none;
   }
 
   /* Cards that are themselves a link or a button. The resting shadow is
@@ -70,12 +81,12 @@ h2 {
      Tailwind's shadow variable, so inheriting it from .card alone leaves the
      card flat until hovered. */
   .card-interactive {
-    @apply card shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-lg;
+    @apply card shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-lg dark:hover:border-stone-700;
   }
 
   /* Loading placeholder that keeps the page's shape instead of collapsing it. */
   .skeleton {
-    @apply animate-pulse rounded-lg bg-stone-200/70;
+    @apply animate-pulse rounded-lg bg-stone-200/70 dark:bg-stone-800;
   }
 
   .chip {

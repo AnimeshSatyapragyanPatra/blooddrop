@@ -36,7 +36,7 @@ export default function Verification() {
 
       <div className="card mb-6 flex flex-wrap items-center justify-between gap-3 p-5">
         <div>
-          <p className="text-sm font-semibold text-stone-800">Current status</p>
+          <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">Current status</p>
           <p className="hint">{user.organization || "No organisation on file"}</p>
         </div>
         <VerifiedBadge verified={user.verified} organization={user.organization} />

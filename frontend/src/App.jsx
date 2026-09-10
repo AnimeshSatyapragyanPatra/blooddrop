@@ -24,7 +24,7 @@ export default function App() {
   const { user, loading, homePath } = useAuth();
 
   if (loading) {
-    return <div className="grid min-h-screen place-items-center text-stone-500">Loading BloodDrop…</div>;
+    return <div className="grid min-h-screen place-items-center text-stone-500 dark:text-stone-400">Loading BloodDrop…</div>;
   }
 
   return (

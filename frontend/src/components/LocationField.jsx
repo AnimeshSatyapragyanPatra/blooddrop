@@ -34,7 +34,7 @@ export default function LocationField({ value, onChange, radiusKm, label = "Loca
     <div>
       <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
         <span className="label mb-0">{label}</span>
-        <button type="button" onClick={useMyLocation} className="text-xs font-semibold text-blood-700 hover:underline">
+        <button type="button" onClick={useMyLocation} className="text-xs font-semibold text-blood-700 dark:text-blood-300 hover:underline">
           {locating ? "Locating…" : "Use my current location"}
         </button>
       </div>
@@ -46,7 +46,7 @@ export default function LocationField({ value, onChange, radiusKm, label = "Loca
           ? `Selected: ${value.lat.toFixed(4)}, ${value.lng.toFixed(4)} — click the map to adjust.`
           : hint || "Click anywhere on the map to drop a pin."}
       </p>
-      {error && <p className="mt-1 text-xs text-blood-700">{error}</p>}
+      {error && <p className="mt-1 text-xs text-blood-700 dark:text-blood-300">{error}</p>}
     </div>
   );
 }

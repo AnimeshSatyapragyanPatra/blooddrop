@@ -87,7 +87,7 @@ export default function DonorProfile() {
         <div className="card mb-6 flex flex-wrap items-center justify-between gap-4 p-5">
           <div>
             <EligibilityPill eligibility={donor.eligibility} />
-            <p className="mt-2 text-sm text-stone-600">
+            <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
               {donor.eligibility.eligible
                 ? "You are visible to nearby requests right now."
                 : `Hidden from matching until ${donor.eligibility.eligibleOn}.`}

@@ -172,18 +172,18 @@ export default function RequestDetail() {
             <div className="flex flex-wrap items-center gap-2">
               <UrgencyChip urgency={request.urgency} />
               <VerifiedBadge verified={request.verified} organization={request.requester?.organization} />
-              <span className="chip bg-stone-100 text-stone-600">{request.status}</span>
+              <span className="chip bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">{request.status}</span>
             </div>
-            <h2 className="mt-2 text-lg font-semibold text-stone-900">
+            <h2 className="mt-2 text-lg font-semibold text-stone-900 dark:text-stone-50">
               {request.unitsNeeded} unit{request.unitsNeeded === 1 ? "" : "s"} of {request.bloodGroup} ·{" "}
               {request.hospitalName}
             </h2>
-            <p className="mt-0.5 text-sm text-stone-500">
+            <p className="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
               {request.areaLabel} · posted {timeAgo(request.createdAt)}
               {request.neededBy && <> · needed {timeUntil(request.neededBy)} ({formatDateTime(request.neededBy)})</>}
             </p>
-            {request.patientName && <p className="mt-1 text-sm text-stone-600">Patient: {request.patientName}</p>}
-            {request.notes && <p className="mt-2 text-sm text-stone-600">{request.notes}</p>}
+            {request.patientName && <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">Patient: {request.patientName}</p>}
+            {request.notes && <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">{request.notes}</p>}
           </div>
           {canModerate && (
             <button className="btn-secondary" onClick={() => setReporting(true)}>
@@ -237,7 +237,7 @@ export default function RequestDetail() {
         </div>
       )}
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">Donors alerted</h2>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">Donors alerted</h2>
 
       {board.rows.length === 0 ? (
         <EmptyState title="No donors alerted yet">
@@ -253,18 +253,18 @@ export default function RequestDetail() {
                   <BloodTag group={row.bloodGroup} />
                   <div className="min-w-48 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-semibold text-stone-900">{row.displayName}</p>
+                      <p className="text-sm font-semibold text-stone-900 dark:text-stone-50">{row.displayName}</p>
                       <ResponseChip status={row.status} />
-                      {row.outcome === "donated" && <span className="chip bg-emerald-100 text-emerald-800">Donated</span>}
-                      {row.outcome === "no_show" && <span className="chip bg-blood-100 text-blood-800">No-show</span>}
+                      {row.outcome === "donated" && <span className="chip bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">Donated</span>}
+                      {row.outcome === "no_show" && <span className="chip bg-blood-100 dark:bg-blood-500/15 text-blood-800 dark:text-blood-300">No-show</span>}
                     </div>
-                    <p className="mt-0.5 text-sm text-stone-500">
+                    <p className="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
                       {row.areaLabel || "Nearby"} · {distance(row.distanceKm)} · alerted by{" "}
                       {CHANNEL_LABEL[row.channel] || row.channel} {timeAgo(row.alertedAt)}
                     </p>
-                    {row.note && <p className="mt-1 text-sm text-stone-600">“{row.note}”</p>}
+                    {row.note && <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">“{row.note}”</p>}
                     {!row.contactUnlocked && (
-                      <p className="mt-1 text-xs text-stone-400">
+                      <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">
                         Contact masked ({row.phone}) — unlocks if they accept.
                       </p>
                     )}
@@ -276,18 +276,18 @@ export default function RequestDetail() {
                 </div>
 
                 {contact && (
-                  <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm">
-                    <p className="font-semibold text-emerald-900">{contact.name}</p>
-                    <p className="text-emerald-800">
+                  <div className="mt-3 rounded-xl border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 p-3 text-sm">
+                    <p className="font-semibold text-emerald-900 dark:text-emerald-200">{contact.name}</p>
+                    <p className="text-emerald-800 dark:text-emerald-300">
                       <a href={`tel:${contact.phone}`} className="font-semibold underline">{contact.phone}</a>
                       {contact.email && <> · {contact.email}</>}
                     </p>
-                    <p className="mt-1 text-xs text-emerald-700">They have been notified that you viewed this.</p>
+                    <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">They have been notified that you viewed this.</p>
                   </div>
                 )}
 
                 {row.contactUnlocked && (
-                  <div className="mt-3 flex flex-wrap gap-2 border-t border-stone-100 pt-3">
+                  <div className="mt-3 flex flex-wrap gap-2 border-t border-stone-100 dark:border-stone-800 pt-3">
                     {!contact && (
                       <button
                         className="btn-secondary"
@@ -338,8 +338,8 @@ export default function RequestDetail() {
       {relayTo && (
         <div className="fixed inset-0 z-[1000] grid place-items-center bg-stone-900/40 px-4" role="dialog" aria-modal="true">
           <form onSubmit={sendRelay} className="card w-full max-w-md p-6">
-            <h2 className="text-lg font-semibold text-stone-900">Send a relayed message</h2>
-            <p className="mt-1 text-sm text-stone-500">
+            <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-50">Send a relayed message</h2>
+            <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
               Delivered to the donor's inbox. Neither side's phone number is shared.
             </p>
             <textarea

@@ -53,13 +53,13 @@ export default function AdminVerifications() {
         title="Verification queue"
         subtitle="Hospitals, blood banks and NGOs applying for the badge."
         actions={
-          <div className="flex gap-1 rounded-xl bg-stone-200/60 p-1">
+          <div className="flex gap-1 rounded-xl bg-stone-200/60 dark:bg-stone-800/60 p-1">
             {TABS.map(([value, label]) => (
               <button
                 key={value}
                 onClick={() => setStatus(value)}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-                  status === value ? "bg-white text-stone-900 shadow-sm" : "text-stone-600 hover:text-stone-900"
+                  status === value ? "bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-50 shadow-sm" : "text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-50"
                 }`}
               >
                 {label}
@@ -88,13 +88,13 @@ export default function AdminVerifications() {
             <article key={row.id} className="card p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <span className="chip bg-sky-100 text-sky-800">{ORG_LABEL[row.orgType]}</span>
-                  <p className="mt-2 text-base font-semibold text-stone-900">{row.organization}</p>
-                  <p className="mt-1 text-sm text-stone-600">
+                  <span className="chip bg-sky-100 dark:bg-sky-500/15 text-sky-800 dark:text-sky-300">{ORG_LABEL[row.orgType]}</span>
+                  <p className="mt-2 text-base font-semibold text-stone-900 dark:text-stone-50">{row.organization}</p>
+                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">
                     Registration: <span className="font-mono">{row.proofRef}</span>
                   </p>
                   {row.applicant && (
-                    <p className="mt-1 text-xs text-stone-400">
+                    <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">
                       {row.applicant.name} · {row.applicant.email} · {row.applicant.phone} · {timeAgo(row.createdAt)}
                     </p>
                   )}

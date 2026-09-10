@@ -66,17 +66,17 @@ export default function RequestCard({ request, onResponded }) {
             {answered && <ResponseChip status={request.myResponse.status} />}
           </div>
 
-          <h3 className="mt-2 text-base font-semibold text-stone-900">
+          <h3 className="mt-2 text-base font-semibold text-stone-900 dark:text-stone-50">
             {request.unitsNeeded} unit{request.unitsNeeded === 1 ? "" : "s"} of {request.bloodGroup} ·{" "}
             {request.hospitalName}
           </h3>
-          <p className="mt-0.5 text-sm text-stone-500">
+          <p className="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
             {request.areaLabel || "Location on map"}
             {request.distanceKm != null && <> · {distance(request.distanceKm)} away</>}
             {request.neededBy && <> · needed {timeUntil(request.neededBy)}</>}
           </p>
-          {request.notes && <p className="mt-2 text-sm text-stone-600">{request.notes}</p>}
-          <p className="mt-2 text-xs text-stone-400">
+          {request.notes && <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">{request.notes}</p>}
+          <p className="mt-2 text-xs text-stone-400 dark:text-stone-500">
             Posted by {request.requester?.displayName || "a requester"} · {timeAgo(request.createdAt)}
           </p>
         </div>
@@ -89,19 +89,19 @@ export default function RequestCard({ request, onResponded }) {
       )}
 
       {contact && (
-        <div className="mx-5 mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
-          <p className="font-semibold text-emerald-900">{contact.name}</p>
-          <p className="mt-1 text-emerald-800">
+        <div className="mx-5 mb-4 rounded-xl border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 p-4 text-sm">
+          <p className="font-semibold text-emerald-900 dark:text-emerald-200">{contact.name}</p>
+          <p className="mt-1 text-emerald-800 dark:text-emerald-300">
             <a href={`tel:${contact.phone}`} className="font-semibold underline">{contact.phone}</a>
             {contact.email && <> · {contact.email}</>}
           </p>
-          <p className="mt-1 text-xs text-emerald-700">
+          <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
             Shared with you because you accepted. They have been told you viewed it.
           </p>
         </div>
       )}
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-100 bg-stone-50 px-5 py-3">
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 px-5 py-3">
         <div className="flex flex-wrap gap-2">
           {!answered && (
             <>
@@ -136,13 +136,13 @@ export default function RequestCard({ request, onResponded }) {
           </Link>
         </div>
 
-        <button className="text-xs font-medium text-stone-500 hover:text-blood-700" onClick={() => setReporting(true)}>
+        <button className="text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-blood-700 dark:hover:text-blood-300" onClick={() => setReporting(true)}>
           Report this request
         </button>
       </footer>
 
       {ineligible && !answered && (
-        <p className="border-t border-stone-100 bg-amber-50 px-5 py-2 text-xs text-amber-800">
+        <p className="border-t border-stone-100 dark:border-stone-800 bg-amber-50 dark:bg-amber-500/10 px-5 py-2 text-xs text-amber-800 dark:text-amber-300">
           You can still say you cannot make it — accepting is disabled until your {donor.eligibility.daysRemaining}-day
           wait is over.
         </p>

@@ -87,7 +87,7 @@ export default function FindDonors() {
             />
           </div>
 
-          <label className="flex items-start gap-2 text-sm text-stone-700">
+          <label className="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-200">
             <input
               type="checkbox"
               className="mt-0.5"
@@ -105,7 +105,7 @@ export default function FindDonors() {
 
         <section>
           <div className="mb-4 flex items-baseline justify-between">
-            <p className="text-sm text-stone-600">
+            <p className="text-sm text-stone-600 dark:text-stone-300">
               {loading ? "Searching…" : `${result?.count ?? 0} donor${result?.count === 1 ? "" : "s"} within ${radiusKm} km`}
             </p>
           </div>
@@ -120,15 +120,15 @@ export default function FindDonors() {
                 <li key={donor.userId} className="card flex flex-wrap items-center gap-4 p-4">
                   <BloodTag group={donor.bloodGroup} />
                   <div className="min-w-40 flex-1">
-                    <p className="text-sm font-semibold text-stone-900">{donor.displayName}</p>
-                    <p className="text-sm text-stone-500">
+                    <p className="text-sm font-semibold text-stone-900 dark:text-stone-50">{donor.displayName}</p>
+                    <p className="text-sm text-stone-500 dark:text-stone-400">
                       {donor.areaLabel || "Nearby"} · {distance(donor.distanceKm)}
                     </p>
                     <p className="hint">Contact hidden: {donor.maskedPhone}</p>
                   </div>
                   <div className="flex flex-col items-start gap-2">
                     <EligibilityPill eligibility={{ eligible: donor.eligible, daysRemaining: donor.daysUntilEligible }} />
-                    {donor.paused && <span className="chip bg-stone-200 text-stone-700">Alerts paused</span>}
+                    {donor.paused && <span className="chip bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-200">Alerts paused</span>}
                   </div>
                   <div className="w-40">
                     <ReliabilityMeter reliability={donor.reliability} compact />

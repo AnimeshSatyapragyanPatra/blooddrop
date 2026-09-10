@@ -37,8 +37,8 @@ export default function ReportDialog({ targetType, targetId, onClose, onDone }) 
   return (
     <div className="fixed inset-0 z-[1000] grid place-items-center bg-stone-900/40 px-4" role="dialog" aria-modal="true">
       <form onSubmit={submit} className="card w-full max-w-md p-6">
-        <h2 className="text-lg font-semibold text-stone-900">Report this {targetType}</h2>
-        <p className="mt-1 text-sm text-stone-500">
+        <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-50">Report this {targetType}</h2>
+        <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
           Reports go to a moderator, who can take the {targetType} down and notify everyone who was alerted.
         </p>
 
@@ -56,7 +56,7 @@ export default function ReportDialog({ targetType, targetId, onClose, onDone }) 
           </select>
 
           <label className="label mt-4" htmlFor="report-details">
-            What did you notice? <span className="font-normal text-stone-400">(optional)</span>
+            What did you notice? <span className="font-normal text-stone-400 dark:text-stone-500">(optional)</span>
           </label>
           <textarea
             id="report-details"
