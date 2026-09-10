@@ -4,15 +4,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: [
-          "Inter",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
-          "Helvetica Neue",
-          "Arial",
-          "sans-serif",
-        ],
+        // Matches DropByte: Manrope carries the interface, Syne does headings.
+        sans: ["Manrope", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
+        display: ["Syne", "Manrope", "-apple-system", "Segoe UI", "sans-serif"],
       },
       colors: {
         ink: "#1c1917",
