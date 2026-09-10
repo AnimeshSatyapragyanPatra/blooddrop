@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
+import { usePoll } from "../lib/usePoll.js";
 import {
   IconBell, IconPin, IconPlus, IconList, IconUser, IconSearch,
   IconBadge, IconChart, IconFlag, IconShield, IconInbox,
@@ -41,26 +42,22 @@ export default function AppLayout() {
   const links = NAV[user.role] || NAV.donor;
 
   // Polling keeps the badge live in both mock and Supabase mode; swapping in
-  // Supabase Realtime later only changes this effect.
-  useEffect(() => {
-    if (!token) return undefined;
-
-    let active = true;
-    async function poll() {
-      try {
-        const data = await api("/api/notifications", { token });
-        if (active) setUnread(data.unread);
-      } catch {
-        /* a failed poll is not worth interrupting the user for */
-      }
+  // Supabase Realtime later only changes this callback.
+  const pollUnread = useCallback(async () => {
+    if (!token) return;
+    try {
+      const data = await api("/api/notifications", { token });
+      setUnread(data.unread);
+    } catch {
+      /* a failed poll is not worth interrupting the user for */
     }
-    poll();
-    const id = setInterval(poll, 20000);
-    return () => {
-      active = false;
-      clearInterval(id);
-    };
   }, [token]);
+
+  useEffect(() => {
+    pollUnread();
+  }, [pollUnread]);
+
+  usePoll(pollUnread, 30000);
 
   async function handleLogout() {
     await logout();

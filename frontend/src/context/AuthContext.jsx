@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../services/api.js";
 import { supabase } from "../services/supabase.js";
 
@@ -10,6 +10,8 @@ export function AuthProvider({ children }) {
   const [donor, setDonor] = useState(null);
   const [verification, setVerification] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Which user id we last fetched a profile for, so repeat auth events are free.
+  const loadedUserId = useRef(undefined);
 
   const applyProfile = useCallback((data) => {
     setUser(data?.user || null);
@@ -36,6 +38,7 @@ export function AuthProvider({ children }) {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return;
       setSession(data.session);
+      loadedUserId.current = data.session?.user?.id ?? null;
       try {
         await loadProfile(data.session);
       } catch {
@@ -47,6 +50,14 @@ export function AuthProvider({ children }) {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
+
+      // Supabase re-emits auth events on tab focus and on every token refresh.
+      // The signed-in identity is usually unchanged, and re-fetching the
+      // profile each time is a wasted round trip on every single tab switch.
+      const nextUserId = nextSession?.user?.id ?? null;
+      if (nextUserId === loadedUserId.current) return;
+
+      loadedUserId.current = nextUserId;
       loadProfile(nextSession).catch(() => applyProfile(null));
     });
 
@@ -60,6 +71,7 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     setSession(data.session);
+    loadedUserId.current = data.session?.user?.id ?? null;
     const profile = await loadProfile(data.session);
     return profile.user;
   }
@@ -83,6 +95,7 @@ export function AuthProvider({ children }) {
       },
       async logout() {
         await supabase.auth.signOut();
+        loadedUserId.current = null;
         applyProfile(null);
         setSession(null);
       },

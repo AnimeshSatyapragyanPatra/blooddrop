@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
+import { usePoll } from "../lib/usePoll.js";
 import { timeAgo, timeUntil } from "../lib/format.js";
 import { BloodTag, EmptyState, ErrorBanner, PageHeader, Spinner, UrgencyChip, VerifiedBadge } from "../components/ui.jsx";
 
@@ -31,9 +32,9 @@ export default function MyRequests() {
 
   useEffect(() => {
     load();
-    const id = setInterval(load, 20000); // live response counts
-    return () => clearInterval(id);
   }, [load]);
+
+  usePoll(load, 30000); // live response counts, paused when the tab is hidden
 
   return (
     <div className="mx-auto max-w-4xl">

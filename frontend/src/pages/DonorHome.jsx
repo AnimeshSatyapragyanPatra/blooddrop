@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
+import { usePoll } from "../lib/usePoll.js";
 import RequestCard from "../components/RequestCard.jsx";
 import MapPicker from "../components/MapPicker.jsx";
 import {
@@ -29,9 +30,9 @@ export default function DonorHome() {
 
   useEffect(() => {
     load();
-    const id = setInterval(load, 30000); // keep the feed live without a reload
-    return () => clearInterval(id);
   }, [load]);
+
+  usePoll(load, 45000); // keeps the feed live, but only while the tab is open
 
   async function togglePause() {
     setPausing(true);

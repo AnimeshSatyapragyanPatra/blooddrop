@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
+import { usePoll } from "../lib/usePoll.js";
 import MapPicker from "../components/MapPicker.jsx";
 import RequestCard from "../components/RequestCard.jsx";
 import ReportDialog from "../components/ReportDialog.jsx";
@@ -41,9 +42,11 @@ export default function RequestDetail() {
 
   useEffect(() => {
     load();
-    const timer = setInterval(load, 15000); // live response board
-    return () => clearInterval(timer);
   }, [load]);
+
+  // The response board is the one screen worth watching closely, so it polls
+  // fastest — still only while the requester is actually looking at it.
+  usePoll(load, 15000);
 
   if (loading) return <Spinner />;
   if (!data) return <EmptyState title="Request not found">It may have been closed or removed.</EmptyState>;
