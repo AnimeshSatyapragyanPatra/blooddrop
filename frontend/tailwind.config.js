@@ -4,7 +4,15 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["DM Sans", "Segoe UI", "sans-serif"],
+        sans: [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
+        ],
       },
       colors: {
         ink: "#1c1917",

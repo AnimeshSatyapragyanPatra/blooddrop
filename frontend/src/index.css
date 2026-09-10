@@ -8,6 +8,10 @@
 
 body {
   @apply bg-stone-100 text-stone-900 antialiased;
+  /* Inter: contextual alternates, and a straight-sided 1 so counts and
+     distances line up cleanly in the stat tiles. */
+  font-feature-settings: "cv05" 1, "cv11" 1, "ss01" 1;
+  letter-spacing: -0.006em;
   /* A barely-there warm wash, so large empty areas do not read as dead grey. */
   background-image: radial-gradient(60rem 40rem at 100% -10%, rgba(220, 38, 38, 0.05), transparent 60%);
   background-attachment: fixed;
