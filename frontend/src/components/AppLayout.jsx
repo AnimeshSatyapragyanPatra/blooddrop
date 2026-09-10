@@ -4,8 +4,9 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
 import {
   IconBell, IconPin, IconPlus, IconList, IconUser, IconSearch,
-  IconBadge, IconChart, IconFlag, IconShield, IconInbox, IconDrop,
+  IconBadge, IconChart, IconFlag, IconShield, IconInbox,
 } from "./icons.jsx";
+import Logo from "./Logo.jsx";
 
 const NAV = {
   donor: [
@@ -71,8 +72,8 @@ export default function AppLayout() {
       <aside className="bg-ink px-5 py-5 text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-blood-500 to-blood-700 text-white shadow-sm">
-              <IconDrop className="h-5 w-5" />
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 ring-1 ring-white/10">
+              <Logo className="h-6 w-6" />
             </span>
             <span>
               <span className="block font-semibold tracking-tight">BloodDrop</span>

@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { IS_MOCK } from "../services/supabase.js";
 import { ErrorBanner } from "../components/ui.jsx";
+import Logo from "../components/Logo.jsx";
 
 const DEMO = [
   ["Donor", "donor@blooddrop.test", "Donor123!"],
@@ -52,16 +53,17 @@ export default function Login() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="hidden flex-col justify-between bg-ink p-10 text-white lg:flex">
-        <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blood-500 to-blood-700 shadow-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
-              <path d="M12 2.7s6 6.6 6 10.5a6 6 0 0 1-12 0C6 9.3 12 2.7 12 2.7Z" />
-            </svg>
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-ink p-10 text-white lg:flex">
+        {/* Two soft light sources keep the dark panel from reading as a slab. */}
+        <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-blood-600/25 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-blood-800/30 blur-3xl" />
+        <div className="relative flex items-center gap-3">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 ring-1 ring-white/15">
+            <Logo className="h-7 w-7" withRing />
           </span>
           <span className="text-lg font-semibold tracking-tight">BloodDrop</span>
         </div>
-        <div className="max-w-md">
+        <div className="relative max-w-md">
           <h2 className="text-3xl font-bold leading-tight">
             The WhatsApp forward, replaced by something that answers back.
           </h2>
@@ -70,22 +72,20 @@ export default function Login() {
             instead of silence.
           </p>
           <ul className="mt-8 space-y-3 text-sm text-stone-300">
-            <li>· Matched on blood compatibility, distance and the 90-day donation gap</li>
-            <li>· Phone numbers stay masked until a donor accepts</li>
-            <li>· Hospitals and blood banks carry a moderator-checked badge</li>
+            <li className="flex gap-2"><span className="text-blood-400">✓</span> Matched on blood compatibility, distance and the 90-day donation gap</li>
+            <li className="flex gap-2"><span className="text-blood-400">✓</span> Phone numbers stay masked until a donor accepts</li>
+            <li className="flex gap-2"><span className="text-blood-400">✓</span> Hospitals and blood banks carry a moderator-checked badge</li>
           </ul>
         </div>
-        <p className="text-xs text-stone-500">Built with React, Express and Supabase + PostGIS.</p>
+        <p className="relative text-xs text-stone-500">Built with React, Express and Supabase + PostGIS.</p>
       </div>
 
       <div className="grid place-items-center px-4 py-10">
         <div className="w-full max-w-md">
           {/* The marketing panel is desktop-only, so phones get the mark here. */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blood-500 to-blood-700 text-white shadow-sm">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
-                <path d="M12 2.7s6 6.6 6 10.5a6 6 0 0 1-12 0C6 9.3 12 2.7 12 2.7Z" />
-              </svg>
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-blood-50 ring-1 ring-blood-100">
+              <Logo className="h-7 w-7" withRing />
             </span>
             <span>
               <span className="block text-lg font-semibold tracking-tight text-stone-900">BloodDrop</span>

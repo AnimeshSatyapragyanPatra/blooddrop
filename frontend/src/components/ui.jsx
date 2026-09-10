@@ -35,9 +35,14 @@ export function VerifiedBadge({ verified, organization }) {
 
 export function UrgencyChip({ urgency }) {
   const u = URGENCY[urgency] || URGENCY.routine;
+  // Only "critical" animates. If everything pulsed, nothing would read as urgent.
+  const critical = urgency === "critical";
   return (
     <span className={`chip ${u.chip}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${u.dot}`} aria-hidden="true" />
+      <span className="relative grid h-1.5 w-1.5 place-items-center" aria-hidden="true">
+        {critical && <span className={`absolute h-1.5 w-1.5 rounded-full ${u.dot} animate-ping opacity-75`} />}
+        <span className={`relative h-1.5 w-1.5 rounded-full ${u.dot}`} />
+      </span>
       {u.label}
     </span>
   );
@@ -100,8 +105,14 @@ export function StatTile({ label, value, sub, tone = "default" }) {
     good: "text-emerald-700",
     warn: "text-amber-700",
   };
+  const wash = {
+    default: "",
+    blood: "bg-gradient-to-br from-blood-50/80 to-transparent",
+    good: "bg-gradient-to-br from-emerald-50/80 to-transparent",
+    warn: "bg-gradient-to-br from-amber-50/80 to-transparent",
+  };
   return (
-    <div className="card p-4 transition hover:border-stone-300">
+    <div className={`card p-4 transition hover:border-stone-300 ${wash[tone]}`}>
       <p className="text-xs font-medium uppercase tracking-wide text-stone-500">{label}</p>
       <p className={`mt-1 text-3xl font-bold leading-none tabular-nums ${tones[tone]}`}>{value}</p>
       {sub && <p className="hint">{sub}</p>}
