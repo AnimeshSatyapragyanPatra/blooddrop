@@ -38,13 +38,6 @@ export async function respond(req, res) {
     }
   }
 
-  const { data: existing } = await supabase
-    .from("responses")
-    .select("*")
-    .eq("request_id", request.id)
-    .eq("donor_user_id", req.user.id)
-    .maybeSingle();
-
   const payload = {
     request_id: request.id,
     donor_user_id: req.user.id,
@@ -53,26 +46,46 @@ export async function respond(req, res) {
     responded_at: new Date().toISOString(),
   };
 
+  // Insert first and let the unique constraint on (request_id, donor_user_id)
+  // settle it. Reading for an existing row and then branching cannot be made
+  // safe: a donor double-tapping, or answering from two devices, can have both
+  // requests read "no reply yet" before either one writes. A 23505 coming back
+  // is the database's authoritative answer that this is a change of mind, not a
+  // first reply — which is also what decides whether the counter moves.
   let saved;
-  if (existing) {
+  let isFirstReply = false;
+
+  const { data: inserted, error: insertError } = await supabase
+    .from("responses")
+    .insert(payload)
+    .select("*")
+    .single();
+
+  if (!insertError) {
+    saved = inserted;
+    isFirstReply = true;
+  } else if (insertError.code === "23505") {
     const { data, error } = await supabase
       .from("responses")
       .update(payload)
-      .eq("id", existing.id)
+      .eq("request_id", request.id)
+      .eq("donor_user_id", req.user.id)
       .select("*")
       .single();
     if (error) return res.status(500).json({ error: error.message });
     saved = data;
   } else {
-    const { data, error } = await supabase.from("responses").insert(payload).select("*").single();
-    if (error) return res.status(500).json({ error: error.message });
-    saved = data;
+    return res.status(500).json({ error: insertError.message });
+  }
 
-    // First reply to this request counts towards the donor's response rate.
-    await supabase
-      .from("donors")
-      .update({ responses_given: (donor.responses_given || 0) + 1 })
-      .eq("user_id", req.user.id);
+  if (isFirstReply) {
+    // Incremented in SQL rather than read-modify-write here: two donors
+    // answering the same second would otherwise lose one of the increments,
+    // and the reliability score is built on these counters.
+    await supabase.rpc("record_donor_event", {
+      p_user_id: req.user.id,
+      p_field: "responses_given",
+    });
   }
 
   await notifyInApp({
@@ -121,26 +134,30 @@ export async function confirmOutcome(req, res) {
   if (request.requester_id !== req.user.id && req.user.role !== "admin") {
     return res.status(403).json({ error: "Only the requester can confirm an outcome" });
   }
-  if (response.outcome) return res.status(400).json({ error: "This outcome has already been recorded" });
+  // Claim the outcome with a conditional update rather than checking the row
+  // and then writing it. `is("outcome", null)` folds the guard into the same
+  // statement, so a double-click — or the requester and an admin confirming at
+  // once — can only win once; the loser matches no rows and is told so. The
+  // old check-then-write could let both through and double-count the donor.
+  const { data: claimed, error: claimError } = await supabase
+    .from("responses")
+    .update({ outcome })
+    .eq("id", response.id)
+    .is("outcome", null)
+    .select("*");
 
-  const { data: donor } = await supabase
-    .from("donors")
-    .select("*")
-    .eq("user_id", response.donor_user_id)
-    .maybeSingle();
-
-  await supabase.from("responses").update({ outcome }).eq("id", response.id);
-
-  if (donor) {
-    const update =
-      outcome === "donated"
-        ? {
-            donations_confirmed: (donor.donations_confirmed || 0) + 1,
-            last_donation_date: new Date().toISOString().slice(0, 10),
-          }
-        : { no_shows: (donor.no_shows || 0) + 1 };
-    await supabase.from("donors").update(update).eq("user_id", donor.user_id);
+  if (claimError) return res.status(500).json({ error: claimError.message });
+  if (!claimed?.length) {
+    return res.status(400).json({ error: "This outcome has already been recorded" });
   }
+
+  // Only the caller that won the claim moves the counters, and the arithmetic
+  // happens in SQL so concurrent confirmations cannot lose an increment.
+  await supabase.rpc("record_donor_event", {
+    p_user_id: response.donor_user_id,
+    p_field: outcome === "donated" ? "donations_confirmed" : "no_shows",
+    p_reset_eligibility: outcome === "donated",
+  });
 
   await notifyInApp({
     userId: response.donor_user_id,

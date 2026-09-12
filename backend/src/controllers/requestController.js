@@ -345,7 +345,7 @@ async function dispatchToMatches(request, actorId) {
       requestId: request.id,
     });
 
-    await supabase.from("alerts").insert({
+    const { error: alertError } = await supabase.from("alerts").insert({
       request_id: request.id,
       donor_user_id: match.userId,
       channel,
@@ -353,16 +353,23 @@ async function dispatchToMatches(request, actorId) {
       distance_km: match.distanceKm,
     });
 
-    // Counter that feeds the reliability score's denominator.
-    const { data: donorRow } = await supabase
-      .from("donors")
-      .select("alerts_received")
-      .eq("user_id", match.userId)
-      .maybeSingle();
-    await supabase
-      .from("donors")
-      .update({ alerts_received: (donorRow?.alerts_received || 0) + 1 })
-      .eq("user_id", match.userId);
+    // unique (request_id, donor_user_id) is what stops a donor being alerted
+    // twice for one request. The pre-filter above usually catches it, but two
+    // dispatches racing on the same request only collide here — and losing that
+    // race is expected, not an error worth failing the whole dispatch over.
+    if (alertError) {
+      if (alertError.code !== "23505") {
+        console.error(`[blooddrop] alert insert failed for ${match.userId}:`, alertError.message);
+      }
+      continue;
+    }
+
+    // Counter that feeds the reliability score's denominator. Incremented in
+    // SQL so simultaneous dispatches cannot read the same value and lose one.
+    await supabase.rpc("record_donor_event", {
+      p_user_id: match.userId,
+      p_field: "alerts_received",
+    });
 
     sent.push({ userId: match.userId, channel, distanceKm: match.distanceKm });
   }

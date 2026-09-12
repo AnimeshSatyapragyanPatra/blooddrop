@@ -309,6 +309,31 @@ const TABLE_DEFAULTS = {
   notifications: () => ({ id: randomUUID(), read: false, created_at: new Date().toISOString() }),
 };
 
+// The unique constraints declared in the migration. The mock has to enforce
+// them too, otherwise code that relies on the database to settle a race — one
+// donor tapping "available" twice at once — looks correct here and breaks only
+// against real Postgres.
+// Only the two the controllers actually lean on: profiles and donors are
+// written through upsert, which resolves its own conflicts.
+const UNIQUE_KEYS = {
+  alerts: [["request_id", "donor_user_id"]],
+  responses: [["request_id", "donor_user_id"]],
+};
+
+/** The Postgres unique-violation SQLSTATE, or null when the row is free to insert. */
+function uniqueViolation(table, row) {
+  for (const key of UNIQUE_KEYS[table] || []) {
+    const clash = db[table].some((existing) => key.every((col) => existing[col] === row[col]));
+    if (clash) {
+      return {
+        code: "23505",
+        message: `duplicate key value violates unique constraint "${table}_${key.join("_")}_key"`,
+      };
+    }
+  }
+  return null;
+}
+
 function project(row, cols) {
   if (!row || !cols || cols === "*") return row ? { ...row } : row;
   const fields = cols.split(",").map((c) => c.trim()).filter((c) => c && c !== "*");
@@ -394,8 +419,13 @@ class Query {
 
       if (this.op === "insert") {
         const items = Array.isArray(this.payload) ? this.payload : [this.payload];
-        const inserted = items.map((item) => {
-          const row = { ...TABLE_DEFAULTS[this.table]?.(), ...item };
+        const prepared = items.map((item) => ({ ...TABLE_DEFAULTS[this.table]?.(), ...item }));
+        // Reject the whole batch before writing any of it, the way Postgres would.
+        for (const row of prepared) {
+          const violation = uniqueViolation(this.table, row);
+          if (violation) return { data: null, error: violation };
+        }
+        const inserted = prepared.map((row) => {
           db[this.table].push(row);
           return row;
         });
@@ -495,6 +525,20 @@ const RPCS = {
     }
 
     return rows.sort((a, b) => a.distance_km - b.distance_km);
+  },
+
+  // Mirrors record_donor_event in 20260912000001_concurrency_guards.sql.
+  record_donor_event({ p_user_id, p_field, p_delta = 1, p_reset_eligibility = false }) {
+    const FIELDS = ["alerts_received", "responses_given", "donations_confirmed", "no_shows"];
+    if (!FIELDS.includes(p_field)) throw new Error(`record_donor_event: unknown field ${p_field}`);
+
+    const donor = db.donors.find((d) => d.user_id === p_user_id);
+    if (!donor) return null;
+
+    donor[p_field] = (donor[p_field] || 0) + p_delta;
+    if (p_reset_eligibility) donor.last_donation_date = new Date().toISOString().slice(0, 10);
+    persist();
+    return null;
   },
 };
 
