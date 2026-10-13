@@ -51,7 +51,10 @@ create policy "own documents" on public.donor_documents
 
 -- match_donors must carry the new flag, so a requester can see at a glance
 -- whether a matched donor's group was checked against a document.
-create or replace function public.match_donors(
+-- Dropped first: adding an OUT column changes the return type, and Postgres
+-- refuses to replace a function whose row type has changed.
+drop function if exists public.match_donors(double precision, double precision, double precision, text[]);
+create function public.match_donors(
   p_lat double precision,
   p_lng double precision,
   p_radius_km double precision,
