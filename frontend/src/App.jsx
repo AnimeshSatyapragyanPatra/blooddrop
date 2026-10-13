@@ -5,6 +5,7 @@ import { useAuth } from "./context/AuthContext.jsx";
 import AdminOverview from "./pages/AdminOverview.jsx";
 import AdminReports from "./pages/AdminReports.jsx";
 import AdminVerifications from "./pages/AdminVerifications.jsx";
+import AdminDocuments from "./pages/AdminDocuments.jsx";
 import BookSlot from "./pages/BookSlot.jsx";
 import FacilityDesk from "./pages/FacilityDesk.jsx";
 import DonorHome from "./pages/DonorHome.jsx";
@@ -97,6 +98,14 @@ export default function App() {
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminReports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/documents"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <AdminDocuments />
             </ProtectedRoute>
           }
         />

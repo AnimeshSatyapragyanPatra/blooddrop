@@ -34,6 +34,7 @@ const NAV = {
     { to: "/facility", label: "Donation desk", icon: IconList },
     { to: "/admin/reports", label: "Moderation queue", icon: IconFlag },
     { to: "/admin/verifications", label: "Verification queue", icon: IconShield },
+    { to: "/admin/documents", label: "Blood group proofs", icon: IconBadge },
     { to: "/donors", label: "Find donors", icon: IconSearch },
     { to: "/requests/new", label: "Post a request", icon: IconPlus },
   ],

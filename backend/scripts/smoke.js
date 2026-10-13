@@ -366,6 +366,77 @@ try {
     method: "POST", token: hospitalToken, body: { status: "fulfilled" },
   });
 
+  console.log("\nblood group verification by document");
+  const docCfg = await call("/api/documents/config", { token: donorToken });
+  check("document types offered", docCfg.docTypes.length === 4);
+  check("upload size is capped", docCfg.maxBytes <= 8 * 1024 * 1024);
+
+  // A 1x1 PNG is enough to exercise the pipeline.
+  const PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+
+  await call("/api/me/documents", {
+    method: "POST", token: donorToken, expect: 400,
+    body: { docType: "donor_card", claimedBloodGroup: "XX", file: PNG },
+  });
+  check("an invalid blood group is rejected", true);
+
+  await call("/api/me/documents", {
+    method: "POST", token: donorToken, expect: 400,
+    body: { docType: "donor_card", claimedBloodGroup: "O+", file: "data:text/html;base64,PGh0bWw+" },
+  });
+  check("a non-image/pdf file is rejected", true);
+
+  const submitted = await call("/api/me/documents", {
+    method: "POST", token: donorToken, expect: 201,
+    body: { docType: "donor_card", claimedBloodGroup: "O+", file: PNG },
+  });
+  check("document submitted", submitted.document.status === "pending");
+
+  await call("/api/me/documents", {
+    method: "POST", token: donorToken, expect: 400,
+    body: { docType: "lab_report", claimedBloodGroup: "O+", file: PNG },
+  });
+  check("only one document may be pending at a time", true);
+
+  await call("/api/admin/documents", { token: donorToken, expect: 403 });
+  check("a donor cannot read the review queue", true);
+
+  const reviewQueue = await call("/api/admin/documents?status=pending", { token: adminToken });
+  const queuedDoc = reviewQueue.documents.find((d) => d.id === submitted.document.id);
+  check("document reaches the review queue", Boolean(queuedDoc));
+  check("reviewer sees who submitted it", Boolean(queuedDoc.applicant?.name));
+  check("reviewer is shown the profile group for comparison", queuedDoc.profileBloodGroup === "O+");
+  check("file is still available before review", queuedDoc.fileAvailable === true);
+
+  await call(`/api/admin/documents/${submitted.document.id}/review`, {
+    method: "POST", token: adminToken, expect: 400, body: { approve: false },
+  });
+  check("rejection requires a reason", true);
+
+  await call(`/api/admin/documents/${submitted.document.id}/review`, {
+    method: "POST", token: adminToken, body: { approve: true },
+  });
+  const afterVerify = await call("/api/me/documents", { token: donorToken });
+  check("donor's group is now verified", afterVerify.verified === true);
+  check("decision kept, scan purged", afterVerify.documents[0].fileAvailable === false);
+
+  const purged = await fetch(`${base}/api/admin/documents/${submitted.document.id}/file`, {
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  check("the purged file is no longer retrievable", purged.status === 410, `got ${purged.status}`);
+
+  await call(`/api/admin/documents/${submitted.document.id}/review`, {
+    method: "POST", token: adminToken, expect: 400, body: { approve: true },
+  });
+  check("a reviewed document cannot be reviewed twice", true);
+
+  const verifiedInMatch = await call(
+    "/api/requests/preview-matches?bloodGroup=AB%2B&lat=23.5204&lng=87.3119&radiusKm=40",
+    { token: hospitalToken }
+  );
+  check("verification surfaces in matching",
+    verifiedInMatch.donors.some((d) => d.bloodGroupVerified === true));
+
   console.log("\nclosing");
   const closed = await call(`/api/requests/${requestId}/close`, {
     method: "POST",

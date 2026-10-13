@@ -6,6 +6,8 @@ export function donorView(donor) {
   if (!donor) return null;
   return {
     bloodGroup: donor.blood_group,
+    bloodGroupVerified: Boolean(donor.blood_group_verified),
+    bloodGroupVerifiedAt: donor.blood_group_verified_at || null,
     lat: donor.lat,
     lng: donor.lng,
     areaLabel: donor.area_label,

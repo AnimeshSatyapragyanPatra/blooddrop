@@ -15,11 +15,12 @@ import reportRoutes from "./routes/reports.js";
 import adminRoutes from "./routes/admin.js";
 import facilityRoutes from "./routes/facilities.js";
 import appointmentRoutes, { facilityRouter } from "./routes/appointments.js";
+import documentRoutes, { reviewRouter } from "./routes/documents.js";
 
 const app = express();
 
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: "8mb" })); // base64 document uploads
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, mock: MOCK });
@@ -44,6 +45,8 @@ app.use("/api/reports", requireAuth, reportRoutes);
 app.use("/api/facilities", requireAuth, facilityRoutes);
 app.use("/api/appointments", requireAuth, appointmentRoutes);
 app.use("/api/facility", requireAuth, facilityRouter);
+app.use("/api/documents", requireAuth, documentRoutes);
+app.use("/api/admin/documents", requireAuth, reviewRouter);
 app.use("/api/admin", requireAuth, adminRoutes);
 
 app.use((err, _req, res, _next) => {

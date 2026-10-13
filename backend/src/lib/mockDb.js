@@ -30,6 +30,7 @@ const TABLES = [
   "alerts",
   "responses",
   "appointments",
+  "donor_documents",
   "reports",
   "verifications",
   "notifications",
@@ -159,6 +160,10 @@ function seed() {
     db.donors.push({
       id: randomUUID(),
       user_id: userId,
+      // Every third seeded donor arrives with a checked document, so the
+      // verified badge is visible without having to review one first.
+      blood_group_verified: i % 3 === 0,
+      blood_group_verified_at: i % 3 === 0 ? now : null,
       blood_group: group,
       lat: p.lat,
       lng: p.lng,
@@ -341,9 +346,19 @@ function seed() {
 
 const TABLE_DEFAULTS = {
   profiles: () => ({ id: randomUUID(), role: "donor", verified: false, created_at: new Date().toISOString() }),
+  donor_documents: () => ({
+    id: randomUUID(),
+    status: "pending",
+    reviewed_by: null,
+    reviewed_at: null,
+    review_note: null,
+    created_at: new Date().toISOString(),
+  }),
   donors: () => ({
     id: randomUUID(),
     paused: false,
+    blood_group_verified: false,
+    blood_group_verified_at: null,
     alerts_received: 0,
     responses_given: 0,
     donations_confirmed: 0,
@@ -546,6 +561,7 @@ const RPCS = {
         email: profile?.email || null,
         phone: profile?.phone || null,
         blood_group: donor.blood_group,
+        blood_group_verified: Boolean(donor.blood_group_verified),
         area_label: donor.area_label,
         lat: donor.lat,
         lng: donor.lng,

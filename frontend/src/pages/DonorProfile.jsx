@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../services/api.js";
 import LocationField from "../components/LocationField.jsx";
 import BloodGroupPicker from "../components/BloodGroupPicker.jsx";
+import BloodGroupProof from "../components/BloodGroupProof.jsx";
 import {
   EligibilityPill, ErrorBanner, Notice, PageHeader, ReliabilityMeter, StatTile,
 } from "../components/ui.jsx";
@@ -96,6 +97,12 @@ export default function DonorProfile() {
           <div className="w-full sm:w-64">
             <ReliabilityMeter reliability={donor.reliability} />
           </div>
+        </div>
+      )}
+
+      {donor && (
+        <div className="mb-6">
+          <BloodGroupProof />
         </div>
       )}
 

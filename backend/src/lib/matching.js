@@ -57,6 +57,7 @@ export async function findMatchingDonors({ bloodGroup, lat, lng, radiusKm, exclu
         userId: row.user_id,
         displayName: maskName(row.name),
         bloodGroup: row.blood_group,
+        bloodGroupVerified: Boolean(row.blood_group_verified),
         areaLabel: row.area_label,
         distanceKm: Math.round(row.distance_km * 10) / 10,
         contactPref: row.contact_pref,
