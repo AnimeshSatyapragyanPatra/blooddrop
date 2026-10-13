@@ -13,6 +13,8 @@ import responseRoutes from "./routes/responses.js";
 import notificationRoutes from "./routes/notifications.js";
 import reportRoutes from "./routes/reports.js";
 import adminRoutes from "./routes/admin.js";
+import facilityRoutes from "./routes/facilities.js";
+import appointmentRoutes, { facilityRouter } from "./routes/appointments.js";
 
 const app = express();
 
@@ -39,6 +41,9 @@ app.use("/api/requests", requireAuth, requestRoutes);
 app.use("/api/responses", requireAuth, responseRoutes);
 app.use("/api/notifications", requireAuth, notificationRoutes);
 app.use("/api/reports", requireAuth, reportRoutes);
+app.use("/api/facilities", requireAuth, facilityRoutes);
+app.use("/api/appointments", requireAuth, appointmentRoutes);
+app.use("/api/facility", requireAuth, facilityRouter);
 app.use("/api/admin", requireAuth, adminRoutes);
 
 app.use((err, _req, res, _next) => {

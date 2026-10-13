@@ -76,3 +76,42 @@ export const SEED_DONORS = [
 export const AREAS = ["City Centre", "Benachity", "Steel Township", "Muchipara", "Rajbandh", "Kanksa"];
 
 export const DEMO_PASSWORD = "Donor123!";
+
+// ---------------------------------------------------------------------------
+// Facilities — the licensed places a donation can actually happen.
+// [name, type, km, bearing, phone, open, close, slotMinutes, capacity, licence]
+// ---------------------------------------------------------------------------
+
+export const SEED_FACILITIES = [
+  ["Durgapur Mission Hospital Blood Bank", "hospital", 0.5, 0, "+91 90010 00001", "09:00", "17:00", 30, 2, "WB/BB/1180"],
+  ["Durgapur Central Blood Bank", "blood_bank", 2.4, 120, "+91 90010 00002", "08:00", "20:00", 30, 3, "WB/BB/2291"],
+  ["Sadar Hospital Transfusion Unit", "hospital", 3.0, 180, "+91 90010 00003", "10:00", "16:00", 30, 1, "WB/BB/3307"],
+];
+
+// One desk per facility. Staff only ever see their own facility's queue, so
+// without this a donor who picks a different blood bank books into a desk
+// nobody can open — correct behaviour, but a dead end to demo.
+// Only the first is offered as a demo login; the others exist so every path works.
+export const SEED_FACILITY_STAFF = [
+  {
+    email: "bloodbank@blooddrop.test",
+    password: "Bank123!",
+    name: "Sunita Das",
+    phone: "+91 90010 00009",
+    facility: "Durgapur Mission Hospital Blood Bank",
+  },
+  {
+    email: "central.bank@blooddrop.test",
+    password: "Bank123!",
+    name: "Ravi Sen",
+    phone: "+91 90010 00010",
+    facility: "Durgapur Central Blood Bank",
+  },
+  {
+    email: "sadar.bank@blooddrop.test",
+    password: "Bank123!",
+    name: "Nilima Ghosh",
+    phone: "+91 90010 00011",
+    facility: "Sadar Hospital Transfusion Unit",
+  },
+];

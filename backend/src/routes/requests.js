@@ -10,6 +10,7 @@ import {
 } from "../controllers/requestController.js";
 import { respond } from "../controllers/responseController.js";
 import { revealContact, relayMessage } from "../controllers/contactController.js";
+import { bookSlot } from "../controllers/appointmentController.js";
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.post("/:id/respond", respond);
 router.post("/:id/close", closeRequest);
 router.get("/:id/contact", revealContact);
 router.post("/:id/relay", relayMessage);
+router.post("/:id/book", bookSlot);
 
 export default router;

@@ -123,6 +123,24 @@ export async function confirmOutcome(req, res) {
   }
   if (response.outcome) return res.status(400).json({ error: "This outcome has already been recorded" });
 
+  // Where the donation was booked at a facility, that facility records the
+  // outcome — they are the only party who witnessed it. Letting a requester
+  // self-report over the top would make the reliability score meaningless,
+  // since they could credit a friend or punish a donor who did turn up.
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("id, status")
+    .eq("response_id", response.id)
+    .maybeSingle();
+
+  if (appointment && appointment.status !== "cancelled") {
+    return res.status(409).json({
+      error:
+        "This donation is booked at a blood bank, so the blood bank records the outcome. " +
+        "You will see it here once they confirm it.",
+    });
+  }
+
   const { data: donor } = await supabase
     .from("donors")
     .select("*")

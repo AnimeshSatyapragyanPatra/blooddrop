@@ -83,7 +83,7 @@ export async function register(req, res) {
 
 /** Look up the caller's profile, creating a bare donor profile on first sight. */
 export async function ensureProfile(authUser) {
-  const cols = "id, user_id, name, email, phone, role, organization, org_type, verified";
+  const cols = "id, user_id, name, email, phone, role, organization, org_type, verified, facility_id";
   const { data: existing } = await supabase
     .from("profiles")
     .select(cols)

@@ -11,6 +11,7 @@ import { haversineKm } from "../src/lib/geo.js";
 import { compatibleDonorGroups } from "../src/lib/blood.js";
 import {
   CENTRE, daysAgo, hoursFromNow, offset, SEED_ACCOUNTS, SEED_DONORS, AREAS, DEMO_PASSWORD,
+  SEED_FACILITIES, SEED_FACILITY_STAFF,
 } from "../src/lib/demoData.js";
 
 const url = process.env.SUPABASE_URL;
@@ -130,6 +131,38 @@ for (const [i, [name, group, km, bearing, last, pref, stats, paused]] of SEED_DO
 }
 console.log(`  · ${SEED_DONORS.length} donors`);
 
+// ---- Facilities and their staff --------------------------------------------
+
+const facilityIds = {};
+for (const [name, type, km, bearing, phone, open, close, slotMinutes, capacity, licence] of SEED_FACILITIES) {
+  const point = offset(km, bearing);
+  const { data, error } = await supabase
+    .from("facilities")
+    .insert({
+      name, type,
+      address: `${AREAS[Object.keys(facilityIds).length % AREAS.length]}, Durgapur`,
+      lat: point.lat, lng: point.lng, phone,
+      open_time: open, close_time: close,
+      slot_minutes: slotMinutes, slot_capacity: capacity,
+      licence_ref: licence, verified: true,
+    })
+    .select("*")
+    .single();
+  if (error) die(`Could not create facility ${name} — ${error.message}`);
+  facilityIds[name] = data.id;
+}
+console.log(`  · ${SEED_FACILITIES.length} verified facilities`);
+
+for (const staff of SEED_FACILITY_STAFF) {
+  const userId = await createUser(staff.email, staff.password, staff.name, staff.phone);
+  await must(`staff ${staff.email}`, supabase.from("profiles").upsert({
+    user_id: userId, name: staff.name, email: staff.email, phone: staff.phone,
+    role: "facility", organization: staff.facility, verified: true,
+    facility_id: facilityIds[staff.facility],
+  }, { onConflict: "user_id" }));
+}
+console.log(`  · ${SEED_FACILITY_STAFF.length} facility staff logins`);
+
 // ---- Requests --------------------------------------------------------------
 
 const hospitalPoint = offset(0.5, 0);
@@ -138,6 +171,7 @@ const { data: critical } = await supabase.from("requests").insert({
   patient_name: "Post-op patient (Ward 4)",
   blood_group: "O-", units_needed: 2,
   hospital_name: "Durgapur Mission Hospital",
+  facility_id: facilityIds["Durgapur Mission Hospital Blood Bank"],
   lat: hospitalPoint.lat, lng: hospitalPoint.lng,
   area_label: "Durgapur Mission Hospital, Benachity",
   urgency: "critical",
@@ -152,6 +186,7 @@ const { data: routine } = await supabase.from("requests").insert({
   patient_name: "My father",
   blood_group: "B+", units_needed: 1,
   hospital_name: "Sadar Hospital, Durgapur",
+  facility_id: facilityIds["Sadar Hospital Transfusion Unit"],
   lat: routinePoint.lat, lng: routinePoint.lng,
   area_label: "Sadar Hospital, Durgapur",
   urgency: "urgent",

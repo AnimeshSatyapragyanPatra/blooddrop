@@ -119,7 +119,16 @@ export default function RequestCard({ request, onResponded }) {
             </>
           )}
 
-          {accepted && !contact && (
+          {/* Blood is collected at a licensed facility, so an accepted alert leads
+              to a booked slot there. The requester's number stays available as a
+              fallback for requests posted without a registered facility. */}
+          {accepted && request.facilityId && (
+            <Link to={`/requests/${request.id}/book`} className="btn-primary">
+              Book your donation slot
+            </Link>
+          )}
+
+          {accepted && !request.facilityId && !contact && (
             <button className="btn-primary" onClick={revealContact} disabled={busy !== null}>
               {busy === "contact" ? "Unlocking…" : "Show requester's contact"}
             </button>

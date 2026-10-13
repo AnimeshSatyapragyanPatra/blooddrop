@@ -101,6 +101,7 @@ export function AuthProvider({ children }) {
       },
       homePath() {
         if (user?.role === "admin") return "/admin";
+        if (user?.role === "facility") return "/facility";
         if (user?.role === "requester") return "/requests";
         return "/home";
       },

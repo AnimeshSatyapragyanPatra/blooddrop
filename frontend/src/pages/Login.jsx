@@ -6,10 +6,14 @@ import { ErrorBanner } from "../components/ui.jsx";
 import Logo from "../components/Logo.jsx";
 import ThemeToggle from "../components/ThemeToggle.jsx";
 
+const homeFor = (role) =>
+  role === "admin" ? "/admin" : role === "facility" ? "/facility" : role === "requester" ? "/requests" : "/home";
+
 const DEMO = [
   ["Donor", "donor@blooddrop.test", "Donor123!"],
   ["Verified hospital", "hospital@blooddrop.test", "Hospital123!"],
   ["Individual requester", "requester@blooddrop.test", "Requester123!"],
+  ["Blood bank staff", "bloodbank@blooddrop.test", "Bank123!"],
   ["Moderator", "admin@blooddrop.test", "Admin123!"],
 ];
 
@@ -29,7 +33,7 @@ export default function Login() {
     setError(null);
     try {
       const profile = await login(email.trim(), password);
-      navigate(profile.role === "admin" ? "/admin" : profile.role === "requester" ? "/requests" : "/home");
+      navigate(homeFor(profile.role));
     } catch (err) {
       setError(err);
     } finally {
@@ -44,7 +48,7 @@ export default function Login() {
     setError(null);
     try {
       const profile = await login(demoEmail, demoPassword);
-      navigate(profile.role === "admin" ? "/admin" : profile.role === "requester" ? "/requests" : "/home");
+      navigate(homeFor(profile.role));
     } catch (err) {
       setError(err);
     } finally {

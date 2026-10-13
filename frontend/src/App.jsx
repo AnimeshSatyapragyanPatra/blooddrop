@@ -5,6 +5,8 @@ import { useAuth } from "./context/AuthContext.jsx";
 import AdminOverview from "./pages/AdminOverview.jsx";
 import AdminReports from "./pages/AdminReports.jsx";
 import AdminVerifications from "./pages/AdminVerifications.jsx";
+import BookSlot from "./pages/BookSlot.jsx";
+import FacilityDesk from "./pages/FacilityDesk.jsx";
 import DonorHome from "./pages/DonorHome.jsx";
 import DonorProfile from "./pages/DonorProfile.jsx";
 import FindDonors from "./pages/FindDonors.jsx";
@@ -18,7 +20,7 @@ import RequestDetail from "./pages/RequestDetail.jsx";
 import Unauthorized from "./pages/Unauthorized.jsx";
 import Verification from "./pages/Verification.jsx";
 
-const ALL_ROLES = ["donor", "requester", "admin"];
+const ALL_ROLES = ["donor", "requester", "admin", "facility"];
 
 export default function App() {
   const { user, loading, homePath } = useAuth();
@@ -48,6 +50,22 @@ export default function App() {
         <Route path="/requests" element={<MyRequests />} />
         <Route path="/requests/new" element={<NewRequest />} />
         <Route path="/requests/:id" element={<RequestDetail />} />
+        <Route
+          path="/requests/:id/book"
+          element={
+            <ProtectedRoute roles={["donor", "requester", "admin"]}>
+              <BookSlot />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/facility"
+          element={
+            <ProtectedRoute roles={["facility", "admin"]}>
+              <FacilityDesk />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/donors"

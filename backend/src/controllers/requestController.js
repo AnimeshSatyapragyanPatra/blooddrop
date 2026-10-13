@@ -40,6 +40,7 @@ function requestView(request, { isOwner = false, viewerResponse = null } = {}) {
     neededBy: request.needed_by,
     notes: request.notes,
     radiusKm: request.radius_km,
+    facilityId: request.facility_id || null,
     status: request.status,
     verified: Boolean(request.verified),
     createdAt: request.created_at,
@@ -72,7 +73,7 @@ async function requesterOf(request) {
 export async function createRequest(req, res) {
   const {
     patientName, bloodGroup, unitsNeeded, hospitalName, lat, lng,
-    areaLabel, urgency, neededBy, notes, radiusKm, dispatch = true,
+    areaLabel, urgency, neededBy, notes, radiusKm, facilityId, dispatch = true,
   } = req.body || {};
 
   if (!isBloodGroup(bloodGroup)) return res.status(400).json({ error: "Choose the blood group needed" });
@@ -96,6 +97,7 @@ export async function createRequest(req, res) {
       blood_group: bloodGroup,
       units_needed: units,
       hospital_name: String(hospitalName).trim(),
+      facility_id: facilityId || null,
       lat: Number(lat),
       lng: Number(lng),
       area_label: String(areaLabel || "").trim() || null,

@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { haversineKm } from "./geo.js";
 import {
   CENTRE, daysAgo, hoursFromNow, offset, SEED_ACCOUNTS, SEED_DONORS, AREAS,
+  SEED_FACILITIES, SEED_FACILITY_STAFF,
 } from "./demoData.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -24,9 +25,11 @@ const DB_FILE = join(DATA_DIR, "db.json");
 const TABLES = [
   "profiles",
   "donors",
+  "facilities",
   "requests",
   "alerts",
   "responses",
+  "appointments",
   "reports",
   "verifications",
   "notifications",
@@ -171,6 +174,50 @@ function seed() {
     });
   });
 
+  // Facilities first: a request points at one, and a donation can only be
+  // booked and confirmed at a licensed place.
+  const facilityIds = {};
+  for (const [name, type, km, bearing, phone, open, close, slotMinutes, capacity, licence] of SEED_FACILITIES) {
+    const point = offset(km, bearing);
+    const id = randomUUID();
+    facilityIds[name] = id;
+    db.facilities.push({
+      id,
+      name,
+      type,
+      address: `${AREAS[Object.keys(facilityIds).length % AREAS.length]}, Durgapur`,
+      lat: point.lat,
+      lng: point.lng,
+      phone,
+      open_time: open,
+      close_time: close,
+      slot_minutes: slotMinutes,
+      slot_capacity: capacity,
+      licence_ref: licence,
+      verified: true,
+      created_at: now,
+    });
+  }
+
+  // A desk per facility, so whichever one a donor picks has staff who can
+  // close the booking out.
+  for (const staff of SEED_FACILITY_STAFF) {
+    const staffId = addUser(staff);
+    db.profiles.push({
+      id: randomUUID(),
+      user_id: staffId,
+      name: staff.name,
+      email: staff.email,
+      phone: staff.phone,
+      role: "facility",
+      organization: staff.facility,
+      org_type: null,
+      verified: true,
+      facility_id: facilityIds[staff.facility],
+      created_at: now,
+    });
+  }
+
   // Two live requests so every screen has something to show.
   const hospitalPoint = offset(0.5, 0);
   const criticalId = randomUUID();
@@ -181,6 +228,7 @@ function seed() {
     blood_group: "O-",
     units_needed: 2,
     hospital_name: "Durgapur Mission Hospital",
+    facility_id: facilityIds["Durgapur Mission Hospital Blood Bank"],
     lat: hospitalPoint.lat,
     lng: hospitalPoint.lng,
     area_label: "Durgapur Mission Hospital, Benachity",
@@ -202,6 +250,7 @@ function seed() {
     blood_group: "B+",
     units_needed: 1,
     hospital_name: "Sadar Hospital, Durgapur",
+    facility_id: facilityIds["Sadar Hospital Transfusion Unit"],
     lat: routinePoint.lat,
     lng: routinePoint.lng,
     area_label: "Sadar Hospital, Durgapur",
@@ -301,7 +350,24 @@ const TABLE_DEFAULTS = {
     no_shows: 0,
     created_at: new Date().toISOString(),
   }),
-  requests: () => ({ id: randomUUID(), status: "open", verified: false, created_at: new Date().toISOString() }),
+  facilities: () => ({
+    id: randomUUID(),
+    open_time: "09:00",
+    close_time: "17:00",
+    slot_minutes: 30,
+    slot_capacity: 2,
+    verified: false,
+    created_at: new Date().toISOString(),
+  }),
+  requests: () => ({ id: randomUUID(), status: "open", verified: false, facility_id: null, created_at: new Date().toISOString() }),
+  appointments: () => ({
+    id: randomUUID(),
+    status: "booked",
+    confirmed_by: null,
+    confirmed_at: null,
+    note: null,
+    created_at: new Date().toISOString(),
+  }),
   alerts: () => ({ id: randomUUID(), status: "sent", sent_at: new Date().toISOString() }),
   responses: () => ({ id: randomUUID(), outcome: null, responded_at: new Date().toISOString() }),
   reports: () => ({ id: randomUUID(), status: "open", created_at: new Date().toISOString() }),

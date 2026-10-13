@@ -25,8 +25,13 @@ const NAV = {
     { to: "/profile", label: "Donor profile", icon: IconUser },
     { to: "/verification", label: "Get verified", icon: IconBadge },
   ],
+  facility: [
+    { to: "/facility", label: "Donation desk", end: true, icon: IconList },
+    { to: "/donors", label: "Find donors", icon: IconSearch },
+  ],
   admin: [
     { to: "/admin", label: "Overview", end: true, icon: IconChart },
+    { to: "/facility", label: "Donation desk", icon: IconList },
     { to: "/admin/reports", label: "Moderation queue", icon: IconFlag },
     { to: "/admin/verifications", label: "Verification queue", icon: IconShield },
     { to: "/donors", label: "Find donors", icon: IconSearch },

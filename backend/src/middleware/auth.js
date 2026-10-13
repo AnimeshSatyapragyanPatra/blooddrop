@@ -26,6 +26,7 @@ export async function requireAuth(req, res, next) {
       role: profile.role,
       organization: profile.organization,
       verified: Boolean(profile.verified),
+      facilityId: profile.facility_id || null,
     };
     next();
   } catch (err) {

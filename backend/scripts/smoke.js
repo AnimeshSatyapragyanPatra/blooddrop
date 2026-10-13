@@ -272,6 +272,100 @@ try {
   check("per-group breakdown present", Boolean(overview.byGroup["O+"]));
   check("top donors ranked", overview.topDonors.length > 0);
 
+  console.log("\nfacilities + booking (the regulated intermediary)");
+  const facilities = await call("/api/facilities?lat=23.5204&lng=87.3119", { token: hospitalToken });
+  check("verified facilities listed", facilities.facilities.length === 3, String(facilities.facilities.length));
+  check("all listed facilities are verified", facilities.facilities.every((f) => f.verified));
+  check("sorted by distance from the point", facilities.facilities[0].distanceKm <= facilities.facilities.at(-1).distanceKm);
+
+  const bank = facilities.facilities[0];
+  const slotPage = await call(`/api/facilities/${bank.id}/slots`, { token: hospitalToken });
+  check("facility publishes bookable days", slotPage.days.length > 0);
+  const firstDay = slotPage.days[0];
+  check("slots derive from opening hours", firstDay.slots.length > 0);
+  check("slots carry remaining capacity", firstDay.slots.every((sl) => typeof sl.remaining === "number"));
+
+  // A fresh request tied to a real facility.
+  const booked = await call("/api/requests", {
+    method: "POST", token: hospitalToken, expect: 201,
+    body: {
+      bloodGroup: "A+", unitsNeeded: 1, hospitalName: bank.name, facilityId: bank.id,
+      lat: 23.5204, lng: 87.3119, urgency: "urgent", radiusKm: 25, dispatch: true,
+    },
+  });
+  check("request carries its facility", booked.request.facilityId === bank.id);
+
+  const donorToken2 = await login("ananya0@donor.test", "Donor123!");
+  const freeSlot = firstDay.slots.find((sl) => !sl.full);
+
+  await call(`/api/requests/${booked.request.id}/book`, {
+    method: "POST", token: donorToken2, expect: 403,
+    body: { scheduledAt: freeSlot.at },
+  });
+  check("cannot book without accepting first", true);
+
+  await call(`/api/requests/${booked.request.id}/respond`, {
+    method: "POST", token: donorToken2, body: { status: "available" },
+  });
+  const appointment = await call(`/api/requests/${booked.request.id}/book`, {
+    method: "POST", token: donorToken2, expect: 201,
+    body: { scheduledAt: freeSlot.at },
+  });
+  check("donor books a slot at the facility", appointment.appointment.status === "booked");
+  check("booking names the facility, not the patient", appointment.appointment.facility.name === bank.name);
+
+  await call(`/api/requests/${booked.request.id}/book`, {
+    method: "POST", token: donorToken2, expect: 400,
+    body: { scheduledAt: new Date(Date.now() - 86400000).toISOString() },
+  });
+  check("a past slot is rejected", true);
+
+  const myBookings = await call("/api/me/appointments", { token: donorToken2 });
+  check("donor sees their booking", myBookings.appointments.some((a) => a.id === appointment.appointment.id));
+
+  // The requester must not be able to self-report a donation the bank witnesses.
+  const resBoard = await call(`/api/requests/${booked.request.id}`, { token: hospitalToken });
+  const bookedRow = resBoard.board.rows.find((r) => r.status === "available");
+  await call(`/api/responses/${bookedRow.responseId}/outcome`, {
+    method: "POST", token: hospitalToken, expect: 409, body: { outcome: "donated" },
+  });
+  check("requester cannot self-report a booked donation", true);
+
+  console.log("\nfacility confirms the donation");
+  const staffToken = await login("bloodbank@blooddrop.test", "Bank123!");
+  const staffQueue = await call("/api/facility/appointments", { token: staffToken });
+  check("staff see their own queue", staffQueue.appointments.length >= 1);
+  const queued = staffQueue.appointments.find((a) => a.id === appointment.appointment.id);
+  check("queue shows the donor's real name and number for identification", Boolean(queued?.donorName && queued?.donorPhone));
+  check("queue shows the donor's blood group", queued.donorBloodGroup === "O+");
+
+  await call("/api/facility/appointments", { token: donorToken2, expect: 403 });
+  check("a donor cannot read a facility queue", true);
+
+  const beforeDonor = await call("/api/me", { token: donorToken2 });
+  const confirmed = await call(`/api/appointments/${appointment.appointment.id}/confirm`, {
+    method: "POST", token: staffToken, body: { outcome: "completed" },
+  });
+  check("facility records the donation", confirmed.status === "completed");
+
+  const afterDonor = await call("/api/me", { token: donorToken2 });
+  check("eligibility clock reset by the facility's record", afterDonor.donor.eligibility.eligible === false);
+  check("donation credited to the donor",
+    afterDonor.donor.reliability.donationsConfirmed === beforeDonor.donor.reliability.donationsConfirmed + 1);
+
+  const mirrored = await call(`/api/requests/${booked.request.id}`, { token: hospitalToken });
+  check("requester's board reflects the bank's record",
+    mirrored.board.rows.some((r) => r.outcome === "donated"));
+
+  await call(`/api/appointments/${appointment.appointment.id}/confirm`, {
+    method: "POST", token: staffToken, expect: 400, body: { outcome: "no_show" },
+  });
+  check("a closed booking cannot be re-confirmed", true);
+
+  await call(`/api/requests/${booked.request.id}/close`, {
+    method: "POST", token: hospitalToken, body: { status: "fulfilled" },
+  });
+
   console.log("\nclosing");
   const closed = await call(`/api/requests/${requestId}/close`, {
     method: "POST",
