@@ -81,13 +81,22 @@ def shot(name, caption, width=165 * mm):
     return [KeepTogether([img, Spacer(1, 3), Paragraph(caption, SMALL)]), Spacer(1, 10)]
 
 
+AUTHOR = "ANIMESH SATYAPRAGYAN PATRA"
+
+
 def footer(canvas, doc):
     canvas.saveState()
     canvas.setFont("Helvetica", 7.5)
     canvas.setFillColor(MUTED)
+
+    # Author in the header on every page.
+    canvas.drawString(20 * mm, A4[1] - 12 * mm, AUTHOR)
+    canvas.drawRightString(A4[0] - 20 * mm, A4[1] - 12 * mm, "BloodDrop")
+    canvas.setStrokeColor(RULE)
+    canvas.line(20 * mm, A4[1] - 14.5 * mm, A4[0] - 20 * mm, A4[1] - 14.5 * mm)
+
     canvas.drawString(20 * mm, 12 * mm, "BloodDrop — local blood & emergency donor alert network")
     canvas.drawRightString(A4[0] - 20 * mm, 12 * mm, f"Page {doc.page}")
-    canvas.setStrokeColor(RULE)
     canvas.line(20 * mm, 16 * mm, A4[0] - 20 * mm, 16 * mm)
     canvas.restoreState()
 
@@ -95,8 +104,8 @@ def footer(canvas, doc):
 def build(path, story):
     doc = SimpleDocTemplate(str(path), pagesize=A4,
                             leftMargin=20 * mm, rightMargin=20 * mm,
-                            topMargin=18 * mm, bottomMargin=22 * mm,
-                            title=path.stem.replace("-", " "), author="Animesh Satyapragyan Patra")
+                            topMargin=22 * mm, bottomMargin=22 * mm,
+                            title=path.stem.replace("-", " "), author=AUTHOR.title())
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
     return path
 
