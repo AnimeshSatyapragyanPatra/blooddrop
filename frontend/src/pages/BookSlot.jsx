@@ -34,12 +34,11 @@ export default function BookSlot() {
       try {
         const data = await api(`/api/requests/${id}`, { token });
         setRequest(data.request);
-        const list = await api(
-          `/api/facilities${qs({ lat: data.request.lat, lng: data.request.lng })}`,
-          { token }
-        );
+        // Ranked for this donor and this request, not just listed.
+        const list = await api(`/api/facilities${qs({ requestId: id })}`, { token });
         setFacilities(list.facilities);
-        setFacilityId(data.request.facilityId || list.facilities[0]?.id || null);
+        const recommended = list.facilities.find((f) => f.recommended);
+        setFacilityId(recommended?.id || data.request.facilityId || list.facilities[0]?.id || null);
       } catch (err) {
         setError(err);
       } finally {
@@ -115,8 +114,12 @@ export default function BookSlot() {
 
       <section className="card mb-6 p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
-          Where
+          Where to go
         </h2>
+        <p className="hint">
+          Ranked by how far it is from you, whether it is open, and when it can next take you.
+        </p>
+
         <div className="mt-3 grid gap-2">
           {facilities.map((f) => (
             <label
@@ -135,11 +138,51 @@ export default function BookSlot() {
                 onChange={() => setFacilityId(f.id)}
               />
               <span className="flex-1">
-                <span className="block text-sm font-semibold text-stone-900 dark:text-stone-50">{f.name}</span>
-                <span className="block text-xs text-stone-500 dark:text-stone-400">
-                  {TYPE_LABEL[f.type]} · {f.address} · open {f.openTime}–{f.closeTime}
-                  {f.distanceKm != null && <> · {distance(f.distanceKm)} from the hospital</>}
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold text-stone-900 dark:text-stone-50">{f.name}</span>
+                  {f.recommended && (
+                    <span className="chip bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
+                      Suggested
+                    </span>
+                  )}
+                  {f.isRequestFacility && (
+                    <span className="chip bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300">
+                      Patient&apos;s hospital
+                    </span>
+                  )}
+                  <span className={`chip ${f.openNow
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300"
+                    : "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300"}`}>
+                    {f.openNow ? "Open now" : `Opens ${f.opensAt}`}
+                  </span>
                 </span>
+
+                <span className="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+                  {TYPE_LABEL[f.type]} · {f.address} · {f.opensAt}–{f.closesAt}
+                </span>
+
+                {/* The two distances answer different questions, so show both. */}
+                <span className="mt-1 block text-xs text-stone-600 dark:text-stone-300">
+                  {f.distanceFromYouKm != null && <><strong>{distance(f.distanceFromYouKm)}</strong> from you</>}
+                  {f.distanceFromRequestKm != null && <> · {distance(f.distanceFromRequestKm)} from the patient</>}
+                </span>
+
+                <span className="mt-1 block text-xs">
+                  {f.nextSlotAt ? (
+                    <span className="text-emerald-700 dark:text-emerald-400">
+                      Next free: {f.nextSlotLabel}
+                      {f.slotsToday > 0 && ` · ${f.slotsToday} left today`}
+                    </span>
+                  ) : (
+                    <span className="text-amber-700 dark:text-amber-400">Nothing bookable in the next few days</span>
+                  )}
+                </span>
+
+                {f.reasons.length > 0 && (
+                  <span className="mt-1 block text-xs text-stone-400 dark:text-stone-500">
+                    {f.reasons.join(" · ")}
+                  </span>
+                )}
                 {f.licenceRef && (
                   <span className="block text-xs text-stone-400 dark:text-stone-500">Licence {f.licenceRef}</span>
                 )}

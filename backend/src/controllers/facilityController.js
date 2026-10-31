@@ -5,6 +5,7 @@
 import { supabase } from "../lib/supabase.js";
 import { haversineKm, isLatLng, roundKm } from "../lib/geo.js";
 import { upcomingSlots } from "../lib/slots.js";
+import { facilityDecision, rankFacilities } from "../lib/recommend.js";
 
 const TYPES = ["hospital", "blood_bank"];
 
@@ -42,17 +43,66 @@ export async function listFacilities(req, res) {
     .order("name", { ascending: true });
 
   if (error) return res.status(500).json({ error: error.message });
+  const facilities = data || [];
 
-  const lat = Number(req.query.lat);
-  const lng = Number(req.query.lng);
-  const hasPoint = isLatLng(lat, lng);
+  // Where the donor is travelling from. Their own record is the right origin —
+  // ranking by distance from the hospital answers a question nobody asked.
+  const { data: donor } = await supabase
+    .from("donors")
+    .select("lat, lng")
+    .eq("user_id", req.user.id)
+    .maybeSingle();
 
-  let rows = (data || []).map((f) =>
-    facilityView(f, hasPoint ? roundKm(haversineKm(lat, lng, f.lat, f.lng)) : null)
-  );
-  if (hasPoint) rows.sort((a, b) => a.distanceKm - b.distanceKm);
+  let donorPoint = donor && isLatLng(donor.lat, donor.lng) ? { lat: donor.lat, lng: donor.lng } : null;
+  if (isLatLng(Number(req.query.lat), Number(req.query.lng)) && !donorPoint) {
+    donorPoint = { lat: Number(req.query.lat), lng: Number(req.query.lng) };
+  }
 
-  res.json({ facilities: rows });
+  // If a request is named, the bank serving that hospital matters.
+  let requestPoint = null;
+  let requestFacilityId = null;
+  if (req.query.requestId) {
+    const { data: request } = await supabase
+      .from("requests")
+      .select("lat, lng, facility_id")
+      .eq("id", req.query.requestId)
+      .maybeSingle();
+    if (request) {
+      requestPoint = { lat: request.lat, lng: request.lng };
+      requestFacilityId = request.facility_id;
+    }
+  } else if (isLatLng(Number(req.query.lat), Number(req.query.lng))) {
+    requestPoint = { lat: Number(req.query.lat), lng: Number(req.query.lng) };
+  }
+
+  // One query for every facility's bookings rather than one per facility.
+  const { data: allTaken } = facilities.length
+    ? await supabase
+        .from("appointments")
+        .select("facility_id, scheduled_at, status")
+        .in("facility_id", facilities.map((f) => f.id))
+    : { data: [] };
+
+  const takenBy = new Map();
+  for (const a of allTaken || []) {
+    if (!takenBy.has(a.facility_id)) takenBy.set(a.facility_id, []);
+    takenBy.get(a.facility_id).push(a);
+  }
+
+  const now = new Date();
+  const decided = facilities.map((f) => ({
+    ...facilityView(f),
+    ...facilityDecision(f, {
+      donorPoint,
+      requestPoint,
+      isRequestFacility: requestFacilityId === f.id,
+      taken: takenBy.get(f.id) || [],
+      now,
+    }),
+  }));
+
+  const ranked = rankFacilities(decided).map(({ score, ...rest }) => rest);
+  res.json({ facilities: ranked, rankedForDonor: Boolean(donorPoint) });
 }
 
 /** One facility plus the days and times it can actually be booked for. */

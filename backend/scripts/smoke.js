@@ -276,9 +276,17 @@ try {
   const facilities = await call("/api/facilities?lat=23.5204&lng=87.3119", { token: hospitalToken });
   check("verified facilities listed", facilities.facilities.length === 3, String(facilities.facilities.length));
   check("all listed facilities are verified", facilities.facilities.every((f) => f.verified));
-  check("sorted by distance from the point", facilities.facilities[0].distanceKm <= facilities.facilities.at(-1).distanceKm);
+  check("each facility carries a bookability verdict",
+    facilities.facilities.every((f) => "openNow" in f && "nextSlotAt" in f && Array.isArray(f.reasons)));
+  check("exactly one option is recommended",
+    facilities.facilities.filter((f) => f.recommended).length === 1,
+    String(facilities.facilities.filter((f) => f.recommended).length));
+  check("the recommendation is bookable",
+    facilities.facilities.find((f) => f.recommended).nextSlotAt != null);
+  check("reasons are given, not just a score",
+    facilities.facilities.find((f) => f.recommended).reasons.length > 0);
 
-  const bank = facilities.facilities[0];
+  const bank = facilities.facilities.find((f) => f.recommended) || facilities.facilities[0];
   const slotPage = await call(`/api/facilities/${bank.id}/slots`, { token: hospitalToken });
   check("facility publishes bookable days", slotPage.days.length > 0);
   const firstDay = slotPage.days[0];
