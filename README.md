@@ -131,6 +131,26 @@ real use. Finally, make yourself a moderator by editing the email in
 Nothing in the app changes between modes: the controllers call
 `supabase.rpc("match_donors", …)` either way.
 
+## Project documents
+
+Two PDFs live in [`docs/`](docs/) and are generated from the codebase, not written by hand:
+
+| File | What it is |
+|---|---|
+| `BloodDrop-Project-Report.pdf` | The full write-up: problem, design decisions, architecture, schema, testing, limitations |
+| `BloodDrop-Questions.pdf` | Likely questions and answers, split into frontend, backend and database |
+
+Regenerate them after any change:
+
+```bash
+cd docs && python3 make_reports.py
+```
+
+Structural figures — table count, endpoints, screens, number of assertions — are read
+from the source by [`docs/facts.py`](docs/facts.py), so the documents cannot quietly
+drift out of date. Neither document contains any credentials. Screenshots live in
+`docs/screenshots/`; replace them and re-run to refresh the figures.
+
 ## Deploying
 
 See [DEPLOY.md](DEPLOY.md). The repo root is Vercel-ready as-is.
