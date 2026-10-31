@@ -109,8 +109,11 @@ export async function listMyDocuments(req, res) {
     .eq("user_id", req.user.id)
     .maybeSingle();
 
+  const verifiedDoc = (data || []).find((d) => d.status === "verified");
+
   res.json({
     documents: (data || []).map((d) => documentView(d)),
+    evidence: verifiedDoc ? DOC_TYPES[verifiedDoc.doc_type] : null,
     bloodGroup: donor?.blood_group || null,
     verified: Boolean(donor?.blood_group_verified),
     verifiedAt: donor?.blood_group_verified_at || null,

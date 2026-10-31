@@ -72,7 +72,10 @@ const must = async (label, promise) => {
 const ids = {};
 for (const acc of SEED_ACCOUNTS) {
   const userId = await createUser(acc.email, acc.password, acc.name, acc.phone);
-  ids[acc.role === "requester" && acc.verified ? "hospital" : acc.role] = userId;
+  // First account of each role stays canonical; later samples must not
+  // displace the one the seeded requests hang off.
+  const slot = acc.role === "requester" && acc.verified ? "hospital" : acc.role;
+  if (!ids[slot]) ids[slot] = userId;
 
   await must(`profile ${acc.email}`, supabase.from("profiles").upsert({
     user_id: userId,

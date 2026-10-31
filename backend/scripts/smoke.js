@@ -267,7 +267,7 @@ try {
 
   console.log("\nadmin overview");
   const overview = await call("/api/admin/overview", { token: adminToken });
-  check("donor totals reported", overview.totals.donors === 16, String(overview.totals.donors));
+  check("donor totals reported", overview.totals.donors === 19, String(overview.totals.donors));
   check("eligible subset smaller than total", overview.totals.eligibleDonors < overview.totals.donors);
   check("per-group breakdown present", Boolean(overview.byGroup["O+"]));
   check("top donors ranked", overview.topDonors.length > 0);

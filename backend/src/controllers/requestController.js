@@ -2,6 +2,7 @@ import { supabase } from "../lib/supabase.js";
 import { isBloodGroup, canDonate } from "../lib/blood.js";
 import { isLatLng, haversineKm, roundKm } from "../lib/geo.js";
 import { reliabilityView } from "../lib/reliability.js";
+import { verificationFor, verificationView } from "../lib/verification.js";
 import { maskName, maskPhone } from "../lib/privacy.js";
 import { findMatchingDonors, publicDonor, clampRadius } from "../lib/matching.js";
 import { deliver, notifyInApp } from "../lib/notify.js";
@@ -267,6 +268,7 @@ async function responseBoard(request) {
   ]);
   const profileBy = new Map((profiles || []).map((p) => [p.user_id, p]));
   const donorBy = new Map((donorRows || []).map((d) => [d.user_id, d]));
+  const evidence = await verificationFor(donorIds);
 
   const rows = [];
   for (const alert of alerts || []) {
@@ -291,6 +293,7 @@ async function responseBoard(request) {
       respondedAt: response?.responded_at || null,
       outcome: response?.outcome || null,
       reliability: donor ? reliabilityView(donor) : null,
+      verification: verificationView(donor, evidence.get(alert.donor_user_id)),
       // Masked until accepted; the real number comes from /contact on request.
       phone: accepted ? null : maskPhone(profile?.phone),
       contactUnlocked: accepted,
@@ -369,7 +372,8 @@ async function dispatchToMatches(request, actorId) {
     sent.push({ userId: match.userId, channel, distanceKm: match.distanceKm });
   }
 
-  console.log(`[blooddrop] request ${request.id} dispatched to ${sent.length} donor(s) by ${actorId}`);
+  // One line per dispatch is useful; one per donor is noise.
+  console.log(`[blooddrop] request ${request.id} dispatched to ${sent.length} donor(s)`);
   return { alerted: sent.length, matched: matches.length, skippedAlreadyAlerted: alreadyAlerted.size };
 }
 

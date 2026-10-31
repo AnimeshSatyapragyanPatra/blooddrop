@@ -33,6 +33,38 @@ export function VerifiedBadge({ verified, organization }) {
   );
 }
 
+/**
+ * What a requester is told about a donor's blood group: whether it was checked
+ * and against what. Deliberately never the document itself.
+ */
+export function GroupVerification({ verification, compact = false }) {
+  if (!verification) return null;
+
+  if (!verification.verified) {
+    return (
+      <span className="chip bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300" title="This donor typed their blood group; no document was checked">
+        Self-declared group
+      </span>
+    );
+  }
+
+  const when = verification.checkedAt ? new Date(verification.checkedAt).toLocaleDateString() : null;
+  return (
+    <span
+      className="chip bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300"
+      title={`${verification.label}${when ? ` on ${when}` : ""}`}
+    >
+      <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.7-9.9-1.1-1.1-3.3 3.3-1.6-1.6-1.1 1.1 2.7 2.7 4.4-4.4Z" clipRule="evenodd" />
+      </svg>
+      Group verified
+      {!compact && verification.evidence && (
+        <span className="font-normal opacity-80"> · {verification.evidence.toLowerCase()}</span>
+      )}
+    </span>
+  );
+}
+
 export function UrgencyChip({ urgency }) {
   const u = URGENCY[urgency] || URGENCY.routine;
   // Only "critical" animates. If everything pulsed, nothing would read as urgent.

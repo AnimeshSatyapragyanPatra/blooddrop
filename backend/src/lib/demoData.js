@@ -50,6 +50,51 @@ export const SEED_ACCOUNTS = [
     role: "requester",
     phone: "+91 90000 00004",
   },
+
+  // Plainly named sample logins, so a demo does not depend on remembering
+  // which of the characters above plays which part.
+  {
+    email: "donor1@blooddrop.test",
+    password: "Donor@123",
+    name: "Arnab Sen",
+    role: "donor",
+    phone: "+91 98300 10001",
+    donor: { group: "A+", km: 1.5, bearing: 40, last: null, pref: "inapp", stats: [0, 0, 0, 0], verifiedGroup: true },
+  },
+  {
+    email: "donor2@blooddrop.test",
+    password: "Donor@123",
+    name: "Priyanka Roy",
+    role: "donor",
+    phone: "+91 98300 10002",
+    donor: { group: "B+", km: 2.8, bearing: 160, last: null, pref: "inapp", stats: [3, 3, 1, 0], verifiedGroup: false },
+  },
+  {
+    email: "donor3@blooddrop.test",
+    password: "Donor@123",
+    name: "Sahil Ahmed",
+    role: "donor",
+    phone: "+91 98300 10003",
+    // O- is the universal donor, so this one is matched by every request.
+    donor: { group: "O-", km: 4.2, bearing: 280, last: 150, pref: "email", stats: [8, 7, 4, 0], verifiedGroup: true },
+  },
+  {
+    email: "receiver1@blooddrop.test",
+    password: "Receiver@123",
+    name: "Meena Gupta",
+    role: "requester",
+    phone: "+91 98300 20001",
+  },
+  {
+    email: "receiver2@blooddrop.test",
+    password: "Receiver@123",
+    name: "Dr. Kabir Bose",
+    role: "requester",
+    phone: "+91 98300 20002",
+    organization: "Healthworld Hospital, Durgapur",
+    orgType: "hospital",
+    verified: true,
+  },
 ];
 
 // name, group, km, bearing, daysSinceLastDonation (null = never), preference,

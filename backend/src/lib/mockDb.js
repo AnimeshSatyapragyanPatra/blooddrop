@@ -102,7 +102,10 @@ function seed() {
 
   for (const acc of SEED_ACCOUNTS) {
     const userId = addUser(acc);
-    ids[acc.role === "requester" && acc.verified ? "hospital" : acc.role] = userId;
+    // First account of each role is the canonical one the seeded requests and
+    // alerts hang off. Later samples of the same role must not displace it.
+    const slot = acc.role === "requester" && acc.verified ? "hospital" : acc.role;
+    if (!ids[slot]) ids[slot] = userId;
     db.profiles.push({
       id: randomUUID(),
       user_id: userId,
@@ -122,6 +125,8 @@ function seed() {
       db.donors.push({
         id: randomUUID(),
         user_id: userId,
+        blood_group_verified: Boolean(acc.donor.verifiedGroup),
+        blood_group_verified_at: acc.donor.verifiedGroup ? now : null,
         blood_group: acc.donor.group,
         lat: p.lat,
         lng: p.lng,
@@ -176,6 +181,27 @@ function seed() {
       donations_confirmed: d,
       no_shows: n,
       created_at: now,
+    });
+  });
+
+  // A verified group should be able to say what it was checked against. The
+  // file is null because a reviewed document is purged — only the decision and
+  // the kind of evidence survive, which is exactly what a requester is shown.
+  const EVIDENCE = ["donor_card", "lab_report", "hospital_letter"];
+  db.donors.filter((d) => d.blood_group_verified).forEach((d, i) => {
+    db.donor_documents.push({
+      id: randomUUID(),
+      user_id: d.user_id,
+      doc_type: EVIDENCE[i % EVIDENCE.length],
+      claimed_blood_group: d.blood_group,
+      file_path: null,
+      mime_type: null,
+      byte_size: null,
+      status: "verified",
+      reviewed_by: ids.admin || null,
+      reviewed_at: daysAgo(10 + (i % 20)),
+      review_note: null,
+      created_at: daysAgo(12 + (i % 20)),
     });
   });
 

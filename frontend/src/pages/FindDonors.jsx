@@ -5,7 +5,7 @@ import LocationField from "../components/LocationField.jsx";
 import BloodGroupPicker from "../components/BloodGroupPicker.jsx";
 import { distance } from "../lib/format.js";
 import {
-  BloodTag, EligibilityPill, EmptyState, ErrorBanner, Notice, PageHeader, ReliabilityMeter,
+  BloodTag, EligibilityPill, EmptyState, ErrorBanner, GroupVerification, Notice, PageHeader, ReliabilityMeter,
 } from "../components/ui.jsx";
 
 /**
@@ -124,6 +124,7 @@ export default function FindDonors() {
                     <p className="text-sm text-stone-500 dark:text-stone-400">
                       {donor.areaLabel || "Nearby"} · {distance(donor.distanceKm)}
                     </p>
+                    <div className="mt-1.5"><GroupVerification verification={donor.verification} /></div>
                     <p className="hint">Contact hidden: {donor.maskedPhone}</p>
                   </div>
                   <div className="flex flex-col items-start gap-2">

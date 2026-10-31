@@ -6,6 +6,11 @@
 // as "logged" so the demo shows the full dispatch trail without a paid account.
 import { supabase } from "./supabase.js";
 
+// With no provider configured these channels cannot actually send anything.
+// They used to print a line per recipient, which made a single dispatch look
+// like 25 lines of real traffic in the log. Off unless explicitly asked for.
+const TRACE = process.env.NOTIFY_TRACE === "1";
+
 const DRIVERS = {
   async inapp({ userId, title, body, requestId }) {
     await supabase.from("notifications").insert({
@@ -20,26 +25,18 @@ const DRIVERS = {
   },
 
   async email({ to, title, body }) {
-    if (!process.env.RESEND_API_KEY) {
-      console.log(`[blooddrop:email→${to}] ${title} — ${body}`);
-      return "logged";
-    }
+    if (TRACE) console.log(`[blooddrop:email→${to}] ${title} — ${body}`);
     // Wire a real provider here (Resend/SendGrid); left as a seam on purpose.
-    console.log(`[blooddrop:email→${to}] provider configured but not implemented`);
     return "logged";
   },
 
   async sms({ to, title, body }) {
-    if (!process.env.SMS_API_KEY) {
-      console.log(`[blooddrop:sms→${to}] ${title} — ${body}`);
-      return "logged";
-    }
-    console.log(`[blooddrop:sms→${to}] provider configured but not implemented`);
+    if (TRACE) console.log(`[blooddrop:sms→${to}] ${title} — ${body}`);
     return "logged";
   },
 
   async push({ userId, title }) {
-    console.log(`[blooddrop:push→${userId}] ${title}`);
+    if (TRACE) console.log(`[blooddrop:push→${userId}] ${title}`);
     return "logged";
   },
 };

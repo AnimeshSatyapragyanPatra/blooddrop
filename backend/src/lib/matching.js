@@ -9,6 +9,7 @@ import { compatibleDonorGroups } from "./blood.js";
 import { eligibility, isAlertable } from "./eligibility.js";
 import { reliabilityView } from "./reliability.js";
 import { maskName, maskPhone, maskEmail, fuzzLatLng } from "./privacy.js";
+import { verificationFor, verificationView } from "./verification.js";
 
 export const DEFAULT_RADIUS_KM = 15;
 export const MAX_RADIUS_KM = 100;
@@ -47,6 +48,10 @@ export async function findMatchingDonors({ bloodGroup, lat, lng, radiusKm, exclu
 
   const now = new Date();
 
+  // One lookup for the whole match set, so a requester can see what each
+  // donor's blood group was actually checked against.
+  const evidence = await verificationFor((data || []).map((r) => r.user_id));
+
   return (data || [])
     .filter((row) => row.user_id !== excludeUserId)
     .map((row) => {
@@ -58,6 +63,7 @@ export async function findMatchingDonors({ bloodGroup, lat, lng, radiusKm, exclu
         displayName: maskName(row.name),
         bloodGroup: row.blood_group,
         bloodGroupVerified: Boolean(row.blood_group_verified),
+        verification: verificationView(row, evidence.get(row.user_id)),
         areaLabel: row.area_label,
         distanceKm: Math.round(row.distance_km * 10) / 10,
         contactPref: row.contact_pref,

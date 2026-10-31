@@ -5,7 +5,7 @@ import { api, qs } from "../services/api.js";
 import LocationField from "../components/LocationField.jsx";
 import BloodGroupPicker from "../components/BloodGroupPicker.jsx";
 import { distance } from "../lib/format.js";
-import { ErrorBanner, Notice, PageHeader, ReliabilityMeter, VerifiedBadge } from "../components/ui.jsx";
+import { ErrorBanner, GroupVerification, Notice, PageHeader, ReliabilityMeter, VerifiedBadge } from "../components/ui.jsx";
 
 const RADII = [5, 10, 15, 25, 50];
 
@@ -261,6 +261,7 @@ export default function NewRequest() {
                       <div>
                         <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">{d.bloodGroup}</p>
                         <p className="text-xs text-stone-500 dark:text-stone-400">{d.areaLabel || "Nearby"} · {distance(d.distanceKm)}</p>
+                        {d.verification?.verified && <div className="mt-1"><GroupVerification verification={d.verification} compact /></div>}
                       </div>
                       <ReliabilityMeter reliability={d.reliability} compact />
                     </li>

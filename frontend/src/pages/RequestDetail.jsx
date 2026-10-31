@@ -8,8 +8,8 @@ import RequestCard from "../components/RequestCard.jsx";
 import ReportDialog from "../components/ReportDialog.jsx";
 import { CHANNEL_LABEL, distance, formatDateTime, timeAgo, timeUntil } from "../lib/format.js";
 import {
-  BloodTag, EmptyState, ErrorBanner, Notice, PageHeader, ReliabilityMeter, ResponseChip, Spinner,
-  StatTile, UrgencyChip, VerifiedBadge,
+  BloodTag, EmptyState, ErrorBanner, GroupVerification, Notice, PageHeader, ReliabilityMeter,
+  ResponseChip, Spinner, StatTile, UrgencyChip, VerifiedBadge,
 } from "../components/ui.jsx";
 
 export default function RequestDetail() {
@@ -255,6 +255,7 @@ export default function RequestDetail() {
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-semibold text-stone-900 dark:text-stone-50">{row.displayName}</p>
                       <ResponseChip status={row.status} />
+                      <GroupVerification verification={row.verification} compact />
                       {row.outcome === "donated" && <span className="chip bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">Donated</span>}
                       {row.outcome === "no_show" && <span className="chip bg-blood-100 dark:bg-blood-500/15 text-blood-800 dark:text-blood-300">No-show</span>}
                     </div>
