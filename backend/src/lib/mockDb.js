@@ -98,7 +98,10 @@ function seed() {
 
   for (const acc of SEED_ACCOUNTS) {
     const userId = addUser(acc);
-    ids[acc.role === "requester" && acc.verified ? "hospital" : acc.role] = userId;
+    // First account of each kind wins, so adding a demo account later does not
+    // silently re-point the seeded requests, reports and notifications below.
+    const key = acc.role === "requester" && acc.verified ? "hospital" : acc.role;
+    if (!ids[key]) ids[key] = userId;
     db.profiles.push({
       id: randomUUID(),
       user_id: userId,

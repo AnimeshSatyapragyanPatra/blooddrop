@@ -50,6 +50,26 @@ export const SEED_ACCOUNTS = [
     role: "requester",
     phone: "+91 90000 00004",
   },
+  // The pair used to walk through the nearby-hospital feature end to end:
+  // Keerthana answers an alert, Animesh raises the request she answers.
+  {
+    email: "keerthana@blooddrop.test",
+    password: "Keerthana123!",
+    name: "Keerthana",
+    role: "donor",
+    phone: "+91 90000 00005",
+    donor: { group: "O-", km: 1.6, bearing: 290, last: 150, pref: "inapp", stats: [7, 6, 4, 0] },
+  },
+  {
+    email: "animesh@blooddrop.test",
+    password: "Animesh123!",
+    name: "Animesh",
+    role: "requester",
+    phone: "+91 90000 00006",
+    organization: "Durgapur Sub Divisional Hospital",
+    orgType: "hospital",
+    verified: true,
+  },
 ];
 
 // name, group, km, bearing, daysSinceLastDonation (null = never), preference,

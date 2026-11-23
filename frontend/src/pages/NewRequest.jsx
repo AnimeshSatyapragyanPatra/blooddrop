@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api, qs } from "../services/api.js";
 import LocationField from "../components/LocationField.jsx";
+import NearbyHospitals from "../components/NearbyHospitals.jsx";
 import BloodGroupPicker from "../components/BloodGroupPicker.jsx";
 import { distance } from "../lib/format.js";
 import { ErrorBanner, Notice, PageHeader, ReliabilityMeter, VerifiedBadge } from "../components/ui.jsx";
@@ -205,6 +206,24 @@ export default function NewRequest() {
             points={mapPoints}
             label="Hospital location"
             hint="Click the map to drop a pin on the hospital."
+          />
+
+          {/* Picking a real facility beats typing a name: the pin lands exactly
+              where the donor has to go, and two requests at the same hospital
+              end up with the same spelling. */}
+          <NearbyHospitals
+            location={location}
+            radiusKm={10}
+            selectedName={form.hospitalName}
+            title="Hospitals and blood banks near this pin"
+            onSelect={(h) => {
+              setForm((f) => ({
+                ...f,
+                hospitalName: h.name,
+                areaLabel: f.areaLabel || h.address || "",
+              }));
+              setLocation({ lat: h.lat, lng: h.lng });
+            }}
           />
 
           <div>

@@ -6,6 +6,7 @@ import { usePoll } from "../lib/usePoll.js";
 import MapPicker from "../components/MapPicker.jsx";
 import RequestCard from "../components/RequestCard.jsx";
 import ReportDialog from "../components/ReportDialog.jsx";
+import NearbyHospitals from "../components/NearbyHospitals.jsx";
 import { CHANNEL_LABEL, distance, formatDateTime, timeAgo, timeUntil } from "../lib/format.js";
 import {
   BloodTag, EmptyState, ErrorBanner, Notice, PageHeader, ReliabilityMeter, ResponseChip, Spinner,
@@ -136,8 +137,15 @@ export default function RequestDetail() {
         <ErrorBanner error={error} onDismiss={() => setError(null)} />
         <RequestCard request={request} onResponded={load} />
         {request.lat != null && (
-          <div className="mt-4">
+          <div className="mt-4 space-y-4">
             <MapPicker value={{ lat: request.lat, lng: request.lng }} height={260} zoom={13} />
+            {/* A donor deciding whether to accept is really asking "where am I
+                going, and is there somewhere closer I could give instead?" */}
+            <NearbyHospitals
+              location={{ lat: request.lat, lng: request.lng }}
+              radiusKm={10}
+              title="Where you would be going — and what else is nearby"
+            />
           </div>
         )}
       </div>
@@ -227,12 +235,18 @@ export default function RequestDetail() {
       )}
 
       {request.lat != null && (
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <MapPicker
             value={{ lat: request.lat, lng: request.lng }}
             radiusKm={request.radiusKm}
             height={260}
             zoom={11}
+          />
+          <NearbyHospitals
+            location={{ lat: request.lat, lng: request.lng }}
+            radiusKm={10}
+            title="Other collection points near this request"
+            limit={4}
           />
         </div>
       )}
