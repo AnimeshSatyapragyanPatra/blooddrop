@@ -31,12 +31,14 @@ npm run dev
 
 Seeded accounts:
 
-| Role                 | Email                       | Password       |
-|----------------------|-----------------------------|----------------|
-| Donor (O+)           | `donor@blooddrop.test`      | `Donor123!`    |
-| Verified hospital    | `hospital@blooddrop.test`   | `Hospital123!` |
-| Individual requester | `requester@blooddrop.test`  | `Requester123!`|
-| Moderator            | `admin@blooddrop.test`      | `Admin123!`    |
+| Role                 | Email                        | Password        |
+|----------------------|------------------------------|-----------------|
+| Donor (O+)           | `donor@blooddrop.test`       | `Donor123!`     |
+| Donor (O-)           | `keerthana@blooddrop.test`   | `Keerthana123!` |
+| Verified hospital    | `hospital@blooddrop.test`    | `Hospital123!`  |
+| Verified hospital    | `animesh@blooddrop.test`     | `Animesh123!`   |
+| Individual requester | `requester@blooddrop.test`   | `Requester123!` |
+| Moderator            | `admin@blooddrop.test`       | `Admin123!`     |
 
 A five-minute tour: sign in as the **hospital**, post an O- request, watch the
 match preview count donors as you drag the radius. Sign in as the **donor**,
@@ -55,6 +57,19 @@ compatibility, not string equality ([`blood.js`](backend/src/lib/blood.js)).
 Distance comes from the database: `ST_DWithin` against a GiST index in Supabase,
 the same haversine sweep in the mock. Donors inside the 90-day donation gap, or
 who have paused themselves, are filtered out before anyone is disturbed.
+
+**Nearby hospitals and blood banks.** Drop a pin and the facilities around it
+come back nearest-first, classified as hospital, clinic or blood bank
+([`hospitals.js`](backend/src/lib/hospitals.js)). A requester picks one instead
+of typing a name, which fills the field and snaps the pin to the facility's own
+coordinates — so the name and the location can't drift apart, and two requests
+at the same hospital share one spelling. A donor looking at a request sees the
+same list as "where you would be going, and what else is nearby". The data is
+OpenStreetMap via Nominatim, so it works anywhere there is map data rather than
+being seeded for one city; calls are rate-limited and cached per Nominatim's
+usage policy, the route sits behind auth so the deployment isn't an open proxy,
+and a failed lookup degrades to an empty list — an unreachable map service must
+never block someone posting a request.
 
 **Ranking.** Distance leads, reliability nudges — a donor 1 km away always beats
 one 12 km away, but between two similar distances the one who actually turns up
@@ -150,3 +165,17 @@ calendar, eligibility nudges, predictive shortage alerts, referral chains, blood
 bank inventory sync, SMS/WhatsApp bridges. The seams are in place: `notify.js`
 for the channels, `donors.donations_confirmed` for the milestones, and the
 `requests` history for the shortage analysis.
+
+## Seminar documents
+
+The final-year-project write-up and the slides that go with it live in
+[`docs/`](docs):
+
+| File | What it is |
+|---|---|
+| [`BloodDrop-Seminar.pptx`](docs/BloodDrop-Seminar.pptx) | 16-slide seminar deck, with speaker notes |
+| [`BloodDrop-Final-Year-Project-Report-Dasari-Keerthana.docx`](docs/BloodDrop-Final-Year-Project-Report-Dasari-Keerthana.docx) | 14-page project report |
+| [`BloodDrop-Final-Year-Project-Report-Dasari-Keerthana.pdf`](docs/BloodDrop-Final-Year-Project-Report-Dasari-Keerthana.pdf) | the same report as a PDF |
+
+Both are regenerated whenever a feature lands, so the counts and the feature
+list in them track the code rather than drifting away from it.
