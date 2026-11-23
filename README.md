@@ -148,22 +148,23 @@ Nothing in the app changes between modes: the controllers call
 
 ## Project documents
 
-Two PDFs live in [`docs/`](docs/) and are generated from the codebase, not written by hand:
+The write-up and the slides live in [`docs/`](docs/) and are generated from the codebase, not written by hand:
 
 | File | What it is |
 |---|---|
 | `BloodDrop-Project-Report.pdf` | The full write-up: problem, design decisions, architecture, schema, testing, limitations |
 | `BloodDrop-Questions.pdf` | Likely questions and answers, split into frontend, backend and database |
+| `BloodDrop-Seminar.pptx` | The seminar deck — 17 slides with speaker notes |
 
 Regenerate them after any change:
 
 ```bash
-cd docs && python3 make_reports.py
+cd docs && python3 make_reports.py && python3 make_deck.py
 ```
 
 Structural figures — table count, endpoints, screens, number of assertions — are read
-from the source by [`docs/facts.py`](docs/facts.py), so the documents cannot quietly
-drift out of date. Neither document contains any credentials. Screenshots live in
+from the source by [`docs/facts.py`](docs/facts.py) — by the deck as well as the PDFs —
+so none of the three can quietly drift out of date. Neither document contains any credentials. Screenshots live in
 `docs/screenshots/`; replace them and re-run to refresh the figures.
 
 ## Deploying
@@ -185,17 +186,3 @@ calendar, eligibility nudges, predictive shortage alerts, referral chains, blood
 bank inventory sync, SMS/WhatsApp bridges. The seams are in place: `notify.js`
 for the channels, `donors.donations_confirmed` for the milestones, and the
 `requests` history for the shortage analysis.
-
-## Seminar documents
-
-The final-year-project write-up and the slides that go with it live in
-[`docs/`](docs):
-
-| File | What it is |
-|---|---|
-| [`BloodDrop-Seminar.pptx`](docs/BloodDrop-Seminar.pptx) | 16-slide seminar deck, with speaker notes |
-| [`BloodDrop-Final-Year-Project-Report-Dasari-Keerthana.docx`](docs/BloodDrop-Final-Year-Project-Report-Dasari-Keerthana.docx) | 14-page project report |
-| [`BloodDrop-Final-Year-Project-Report-Dasari-Keerthana.pdf`](docs/BloodDrop-Final-Year-Project-Report-Dasari-Keerthana.pdf) | the same report as a PDF |
-
-Both are regenerated whenever a feature lands, so the counts and the feature
-list in them track the code rather than drifting away from it.

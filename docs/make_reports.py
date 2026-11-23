@@ -11,7 +11,7 @@ from pathlib import Path
 from datetime import date
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
@@ -81,7 +81,16 @@ def shot(name, caption, width=165 * mm):
     return [KeepTogether([img, Spacer(1, 3), Paragraph(caption, SMALL)]), Spacer(1, 10)]
 
 
-AUTHOR = "ANIMESH SATYAPRAGYAN PATRA"
+AUTHORS = [
+    ("Animesh Satyapragyan Patra", "23CS8102"),
+    ("Dasari Keerthana", "23CS8039"),
+]
+SUPERVISOR = "Prof. Nanda Dulal Jena"
+DEPARTMENT = "Department of Computer Science and Engineering"
+INSTITUTE = "National Institute of Technology, Durgapur"
+
+# Compact form for the running header, where the full block will not fit.
+AUTHOR = " · ".join(name.upper() for name, _ in AUTHORS)
 
 
 def footer(canvas, doc):
@@ -105,15 +114,53 @@ def build(path, story):
     doc = SimpleDocTemplate(str(path), pagesize=A4,
                             leftMargin=20 * mm, rightMargin=20 * mm,
                             topMargin=22 * mm, bottomMargin=22 * mm,
-                            title=path.stem.replace("-", " "), author=AUTHOR.title())
+                            title=path.stem.replace("-", " "), author="; ".join(f"{n} ({r})" for n, r in AUTHORS))
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
     return path
+
+
+COVER_T = ParagraphStyle("ct", parent=TITLE, alignment=TA_CENTER, fontSize=34, leading=38, spaceAfter=6)
+COVER_S = ParagraphStyle("cs", parent=BODY, alignment=TA_CENTER, fontSize=13, leading=18, spaceAfter=3)
+COVER_M = ParagraphStyle("cm", parent=BODY, alignment=TA_CENTER, fontSize=10, leading=15,
+                         textColor=MUTED, spaceAfter=3)
+COVER_B = ParagraphStyle("cb", parent=BODY, alignment=TA_CENTER, fontSize=12, leading=17,
+                         fontName="Helvetica-Bold", spaceAfter=1)
+
+
+def cover():
+    """Title page for the departmental submission."""
+    s = [Spacer(1, 48 * mm),
+         Paragraph("BloodDrop", COVER_T),
+         Paragraph("An Emergency Blood Donor Alert Network", COVER_S),
+         Paragraph("A location-aware platform connecting blood requests to eligible donors nearby",
+                   COVER_M),
+         Spacer(1, 18 * mm),
+         Paragraph("A Final Year Project Report", COVER_B),
+         Paragraph("presented at the Departmental Seminar", COVER_M),
+         Paragraph("submitted in partial fulfilment of the requirements for the degree of", COVER_M),
+         Paragraph("Bachelor of Technology in Computer Science and Engineering", COVER_B),
+         Spacer(1, 14 * mm),
+         Paragraph("Submitted by", COVER_M)]
+
+    for name, roll in AUTHORS:
+        s += [Paragraph(name, COVER_B), Paragraph(f"Roll Number: {roll}", COVER_M), Spacer(1, 3 * mm)]
+
+    s += [Spacer(1, 8 * mm),
+          Paragraph("Under the supervision of", COVER_M),
+          Paragraph(SUPERVISOR, COVER_B),
+          Paragraph(DEPARTMENT, COVER_M),
+          Spacer(1, 12 * mm),
+          Paragraph(DEPARTMENT, COVER_B),
+          Paragraph(INSTITUTE, COVER_B),
+          Paragraph("West Bengal, India", COVER_M),
+          PageBreak()]
+    return s
 
 
 # ---------------------------------------------------------------- report ----
 
 def project_report(f):
-    s = []
+    s = cover()
     s += [Paragraph("BloodDrop", TITLE),
           Paragraph("A local blood &amp; emergency donor alert network — project report", SUB)]
 
