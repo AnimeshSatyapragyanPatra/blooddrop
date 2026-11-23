@@ -8,6 +8,7 @@ import { MIN_DONATION_GAP_DAYS } from "./lib/eligibility.js";
 import authRoutes from "./routes/auth.js";
 import meRoutes from "./routes/me.js";
 import donorRoutes from "./routes/donors.js";
+import hospitalRoutes from "./routes/hospitals.js";
 import requestRoutes from "./routes/requests.js";
 import responseRoutes from "./routes/responses.js";
 import notificationRoutes from "./routes/notifications.js";
@@ -38,6 +39,8 @@ app.get("/api/config", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/me", requireAuth, meRoutes);
 app.use("/api/donors", requireAuth, donorRoutes);
+// Behind auth so the deployment is not an open proxy onto the map service.
+app.use("/api/hospitals", requireAuth, hospitalRoutes);
 app.use("/api/requests", requireAuth, requestRoutes);
 app.use("/api/responses", requireAuth, responseRoutes);
 app.use("/api/notifications", requireAuth, notificationRoutes);

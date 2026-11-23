@@ -227,7 +227,7 @@ export default function RequestDetail() {
       )}
 
       {request.lat != null && (
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <MapPicker
             value={{ lat: request.lat, lng: request.lng }}
             radiusKm={request.radiusKm}
