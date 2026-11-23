@@ -11,7 +11,7 @@ from pathlib import Path
 from datetime import date
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
@@ -25,27 +25,37 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = Path(__file__).resolve().parent
 SHOTS = OUT / "screenshots"
 
-BLOOD = colors.HexColor("#b91c1c")
-INK = colors.HexColor("#1c1917")
-MUTED = colors.HexColor("#78716c")
-RULE = colors.HexColor("#e7e5e4")
+# Deep cherry rather than the lighter web red: on paper the lighter one greys
+# out, which is what made the earlier build look washed.
+BLOOD = colors.HexColor("#990011")
+INK = colors.HexColor("#14110f")
+MUTED = colors.HexColor("#6d6875")
+RULE = colors.HexColor("#d9cfd0")
+BAND = colors.HexColor("#fcf6f5")
 
+# Serif body, justified, generously led — this is a submitted academic report,
+# not a web page.
 S = getSampleStyleSheet()
-TITLE = ParagraphStyle("t", parent=S["Title"], fontName="Helvetica-Bold", fontSize=26,
-                       textColor=INK, leading=30, alignment=TA_LEFT, spaceAfter=4)
-SUB = ParagraphStyle("s", parent=S["Normal"], fontSize=11.5, textColor=MUTED, leading=16, spaceAfter=18)
-H1 = ParagraphStyle("h1", parent=S["Heading1"], fontName="Helvetica-Bold", fontSize=16,
-                    textColor=BLOOD, spaceBefore=16, spaceAfter=7)
-H2 = ParagraphStyle("h2", parent=S["Heading2"], fontName="Helvetica-Bold", fontSize=12,
-                    textColor=INK, spaceBefore=11, spaceAfter=4)
-BODY = ParagraphStyle("b", parent=S["Normal"], fontSize=10, leading=15, spaceAfter=7, textColor=INK)
-SMALL = ParagraphStyle("sm", parent=BODY, fontSize=8.8, textColor=MUTED, leading=12)
-CODE = ParagraphStyle("c", parent=BODY, fontName="Courier", fontSize=8.5, leading=11,
-                      backColor=colors.HexColor("#f5f5f4"), borderPadding=5, spaceAfter=8)
-Q = ParagraphStyle("q", parent=BODY, fontName="Helvetica-Bold", fontSize=10.5,
-                   textColor=INK, spaceBefore=10, spaceAfter=3)
-A = ParagraphStyle("a", parent=BODY, fontSize=9.6, leading=14, textColor=colors.HexColor("#44403c"),
-                   leftIndent=10, spaceAfter=3)
+TITLE = ParagraphStyle("t", parent=S["Title"], fontName="Times-Bold", fontSize=30,
+                       textColor=BLOOD, leading=34, alignment=TA_LEFT, spaceAfter=4)
+SUB = ParagraphStyle("s", parent=S["Normal"], fontName="Times-Italic", fontSize=12.5,
+                     textColor=MUTED, leading=17, spaceAfter=20)
+H1 = ParagraphStyle("h1", parent=S["Heading1"], fontName="Times-Bold", fontSize=17,
+                    textColor=BLOOD, leading=21, spaceBefore=20, spaceAfter=9)
+H2 = ParagraphStyle("h2", parent=S["Heading2"], fontName="Times-Bold", fontSize=13,
+                    textColor=INK, leading=17, spaceBefore=14, spaceAfter=5)
+BODY = ParagraphStyle("b", parent=S["Normal"], fontName="Times-Roman", fontSize=11.5,
+                      leading=17, spaceAfter=9, textColor=INK, alignment=TA_JUSTIFY)
+SMALL = ParagraphStyle("sm", parent=BODY, fontName="Times-Italic", fontSize=9.5,
+                       textColor=MUTED, leading=13, alignment=TA_CENTER, spaceAfter=2)
+CODE = ParagraphStyle("c", parent=BODY, fontName="Courier", fontSize=9, leading=13,
+                      alignment=TA_LEFT, textColor=INK,
+                      backColor=BAND, borderColor=RULE, borderWidth=0.6,
+                      borderPadding=7, spaceAfter=11)
+Q = ParagraphStyle("q", parent=BODY, fontName="Times-Bold", fontSize=11.5,
+                   textColor=BLOOD, alignment=TA_LEFT, spaceBefore=13, spaceAfter=4)
+A = ParagraphStyle("a", parent=BODY, fontSize=11, leading=16, textColor=INK,
+                   leftIndent=12, spaceAfter=4)
 
 
 def bullets(items):
@@ -53,32 +63,46 @@ def bullets(items):
 
 
 def table(rows, widths, header=True):
-    t = Table(rows, colWidths=widths, hAlign="LEFT")
+    t = Table(rows, colWidths=widths, hAlign="LEFT", repeatRows=1 if header else 0)
     style = [
-        ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
-        ("FONTSIZE", (0, 0), (-1, -1), 8.8),
+        ("FONTNAME", (0, 0), (-1, -1), "Times-Roman"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("LEADING", (0, 0), (-1, -1), 14),
         ("TEXTCOLOR", (0, 0), (-1, -1), INK),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("LINEBELOW", (0, 0), (-1, -2), 0.4, RULE),
-        ("TOPPADDING", (0, 0), (-1, -1), 5),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("GRID", (0, 0), (-1, -1), 0.5, RULE),
+        ("LEFTPADDING", (0, 0), (-1, -1), 7),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
     ]
     if header:
-        style += [("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                  ("TEXTCOLOR", (0, 0), (-1, 0), BLOOD),
-                  ("LINEBELOW", (0, 0), (-1, 0), 0.8, BLOOD)]
+        # A solid cherry header band, white bold text — the thin red underline
+        # it replaces all but vanished in print.
+        style += [("BACKGROUND", (0, 0), (-1, 0), BLOOD),
+                  ("FONTNAME", (0, 0), (-1, 0), "Times-Bold"),
+                  ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                  ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BAND])]
+    else:
+        style += [("FONTNAME", (0, 0), (0, -1), "Times-Bold"),
+                  ("BACKGROUND", (0, 0), (0, -1), BAND)]
     t.setStyle(TableStyle(style))
     return t
 
 
-def shot(name, caption, width=165 * mm):
+# Narrower than the text column on purpose. At full width the serif body
+# leaves too little room below a figure, so each one took a page of its own
+# and left a hole on the page before it.
+def shot(name, caption, width=132 * mm):
     p = SHOTS / name
     if not p.exists():
         return []
     from PIL import Image as PILImage
     w, h = PILImage.open(p).size
     img = Image(str(p), width=width, height=width * h / w)
-    return [KeepTogether([img, Spacer(1, 3), Paragraph(caption, SMALL)]), Spacer(1, 10)]
+    img.hAlign = "CENTER"
+    return [Spacer(1, 4), KeepTogether([img, Spacer(1, 4), Paragraph(caption, SMALL)]),
+            Spacer(1, 12)]
 
 
 AUTHORS = [
@@ -95,13 +119,13 @@ AUTHOR = " · ".join(name.upper() for name, _ in AUTHORS)
 
 def footer(canvas, doc):
     canvas.saveState()
-    canvas.setFont("Helvetica", 7.5)
+    canvas.setFont("Times-Roman", 8.5)
     canvas.setFillColor(MUTED)
 
     # Author in the header on every page.
     canvas.drawString(20 * mm, A4[1] - 12 * mm, AUTHOR)
     canvas.drawRightString(A4[0] - 20 * mm, A4[1] - 12 * mm, "BloodDrop")
-    canvas.setStrokeColor(RULE)
+    canvas.setStrokeColor(BLOOD)
     canvas.line(20 * mm, A4[1] - 14.5 * mm, A4[0] - 20 * mm, A4[1] - 14.5 * mm)
 
     canvas.drawString(20 * mm, 12 * mm, "BloodDrop — local blood & emergency donor alert network")
@@ -123,8 +147,8 @@ COVER_T = ParagraphStyle("ct", parent=TITLE, alignment=TA_CENTER, fontSize=34, l
 COVER_S = ParagraphStyle("cs", parent=BODY, alignment=TA_CENTER, fontSize=13, leading=18, spaceAfter=3)
 COVER_M = ParagraphStyle("cm", parent=BODY, alignment=TA_CENTER, fontSize=10, leading=15,
                          textColor=MUTED, spaceAfter=3)
-COVER_B = ParagraphStyle("cb", parent=BODY, alignment=TA_CENTER, fontSize=12, leading=17,
-                         fontName="Helvetica-Bold", spaceAfter=1)
+COVER_B = ParagraphStyle("cb", parent=BODY, alignment=TA_CENTER, fontSize=13, leading=18,
+                         fontName="Times-Bold", spaceAfter=1)
 
 
 def cover():
