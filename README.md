@@ -154,7 +154,7 @@ The write-up and the slides live in [`docs/`](docs/) and are generated from the 
 |---|---|
 | `BloodDrop-Project-Report.pdf` | The full write-up: problem, design decisions, architecture, schema, testing, limitations |
 | `BloodDrop-Questions.pdf` | Likely questions and answers, split into frontend, backend and database |
-| `BloodDrop-Seminar.pptx` | The seminar deck — 17 slides with speaker notes |
+| `BloodDrop-Presentation.pptx` | The seminar deck — 17 slides with speaker notes |
 
 Regenerate them after any change:
 

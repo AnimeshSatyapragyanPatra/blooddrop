@@ -551,7 +551,7 @@ notes(s, "Close on the one-line thesis, then invite questions. If asked what you
          "no fallback.")
 
 
-path = OUT / "BloodDrop-Seminar.pptx"
+path = OUT / "BloodDrop-Presentation.pptx"
 prs.core_properties.title = "BloodDrop — Emergency Blood Donor Alert Network"
 prs.core_properties.author = "; ".join(f"{n} ({r})" for n, r in AUTHORS)
 prs.core_properties.subject = "Final Year Project Seminar"
