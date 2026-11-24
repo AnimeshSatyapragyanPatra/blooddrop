@@ -178,6 +178,14 @@ export default function BookSlot() {
                   )}
                 </span>
 
+                <span className="mt-1 block text-xs text-stone-600 dark:text-stone-300">
+                  {f.processingFeePaise > 0 ? (
+                    <>Processing charge <strong>{f.processingFee}</strong> per unit, paid to the facility</>
+                  ) : (
+                    <span className="text-emerald-700 dark:text-emerald-400">No processing charge</span>
+                  )}
+                </span>
+
                 {f.reasons.length > 0 && (
                   <span className="mt-1 block text-xs text-stone-400 dark:text-stone-500">
                     {f.reasons.join(" · ")}
@@ -249,6 +257,52 @@ export default function BookSlot() {
         <div className="mb-6">
           <MapPicker value={{ lat: facility.lat, lng: facility.lng }} height={200} zoom={13} />
         </div>
+      )}
+
+      {facility && (
+        <section className="card mb-6 p-5">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+            What this collection costs
+          </h2>
+
+          {facility.processingFeePaise > 0 ? (
+            <dl className="mt-3 space-y-2 text-sm">
+              <div className="flex items-baseline justify-between gap-4">
+                <dt className="text-stone-600 dark:text-stone-300">
+                  {facility.name} processing charge
+                  <span className="block text-xs text-stone-400 dark:text-stone-500">
+                    Collection, testing, typing and storage
+                  </span>
+                </dt>
+                <dd className="shrink-0 font-semibold tabular-nums">{facility.processingFee} / unit</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <dt className="text-stone-600 dark:text-stone-300">
+                  BloodDrop service fee
+                  <span className="block text-xs text-stone-400 dark:text-stone-500">
+                    For matching and co-ordinating the donation
+                  </span>
+                </dt>
+                <dd className="shrink-0 font-semibold tabular-nums">on the charge above</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 border-t border-stone-200 pt-2 dark:border-stone-700">
+                <dt className="font-semibold text-stone-800 dark:text-stone-100">You, the donor, pay</dt>
+                <dd className="shrink-0 font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">
+                  Nothing
+                </dd>
+              </div>
+            </dl>
+          ) : (
+            <p className="mt-3 text-sm text-stone-600 dark:text-stone-300">
+              {facility.name} makes no processing charge for this collection.
+            </p>
+          )}
+
+          <p className="hint mt-3">
+            The charge is billed to whoever posted the request, not to you. Donors are never paid for blood and
+            never billed for giving it — paid donation is barred in India.
+          </p>
+        </section>
       )}
 
       <div className="mb-6">

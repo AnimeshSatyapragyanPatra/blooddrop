@@ -1,3 +1,8 @@
+
+/** Mirrors formatPaise in backend/src/lib/fees.js, for assertions only. */
+function formatRupees(paise) {
+  return "₹" + (paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 // End-to-end smoke test of the whole API against the mock database.
 // Runs the real Express app on an ephemeral port with a throwaway data dir:
 //   npm run smoke --prefix backend
@@ -321,6 +326,31 @@ try {
   });
   check("donor books a slot at the facility", appointment.appointment.status === "booked");
   check("booking names the facility, not the patient", appointment.appointment.facility.name === bank.name);
+
+  // Collection charges. The point of these is less the arithmetic than the
+  // invariant underneath it: no amount is ever payable to the donor.
+  const charge = appointment.charge;
+  check("booking returns a charge breakdown", Boolean(charge));
+  check("the facility's processing fee is charged", charge.processingFeePaise > 0,
+        String(charge.processingFeePaise));
+  check("BloodDrop's fee is charged on top", charge.platformFeePaise > 0, String(charge.platformFeePaise));
+  check("total is processing plus platform",
+        charge.totalPaise === charge.processingFeePaise + charge.platformFeePaise);
+  check("the platform fee is a minority of the charge", charge.platformFeePaise < charge.processingFeePaise);
+  check("the donor receives nothing", charge.donorReceives === formatRupees(0));
+  check("amounts are whole paise, not floats",
+        Number.isInteger(charge.processingFeePaise) && Number.isInteger(charge.platformFeePaise));
+
+  // Re-booking moves the slot; it must not bill the donation twice.
+  const nextFree = slotPage.days.flatMap((d) => d.slots).filter((x) => !x.full && x.at !== freeSlot.at)[0];
+  if (nextFree) {
+    const rebooked = await call(`/api/requests/${booked.request.id}/book`, {
+      method: "POST", token: donorToken2, expect: 201,
+      body: { scheduledAt: nextFree.at },
+    });
+    check("re-booking does not raise a second charge",
+          rebooked.charge.totalPaise === charge.totalPaise);
+  }
 
   await call(`/api/requests/${booked.request.id}/book`, {
     method: "POST", token: donorToken2, expect: 400,

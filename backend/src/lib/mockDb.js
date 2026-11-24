@@ -30,6 +30,7 @@ const TABLES = [
   "alerts",
   "responses",
   "appointments",
+  "charges",
   "donor_documents",
   "reports",
   "verifications",
@@ -208,7 +209,7 @@ function seed() {
   // Facilities first: a request points at one, and a donation can only be
   // booked and confirmed at a licensed place.
   const facilityIds = {};
-  for (const [name, type, km, bearing, phone, open, close, slotMinutes, capacity, licence] of SEED_FACILITIES) {
+  for (const [name, type, km, bearing, phone, open, close, slotMinutes, capacity, licence, fee] of SEED_FACILITIES) {
     const point = offset(km, bearing);
     const id = randomUUID();
     facilityIds[name] = id;
@@ -225,6 +226,7 @@ function seed() {
       slot_minutes: slotMinutes,
       slot_capacity: capacity,
       licence_ref: licence,
+      processing_fee_paise: fee,
       verified: true,
       created_at: now,
     });
@@ -397,6 +399,7 @@ const TABLE_DEFAULTS = {
     close_time: "17:00",
     slot_minutes: 30,
     slot_capacity: 2,
+    processing_fee_paise: 0,
     verified: false,
     created_at: new Date().toISOString(),
   }),
@@ -411,6 +414,8 @@ const TABLE_DEFAULTS = {
   }),
   alerts: () => ({ id: randomUUID(), status: "sent", sent_at: new Date().toISOString() }),
   responses: () => ({ id: randomUUID(), outcome: null, responded_at: new Date().toISOString() }),
+  charges: () => ({ id: randomUUID(), status: "pending", waived_reason: null,
+    settled_at: null, created_at: new Date().toISOString() }),
   reports: () => ({ id: randomUUID(), status: "open", created_at: new Date().toISOString() }),
   verifications: () => ({ id: randomUUID(), status: "pending", created_at: new Date().toISOString() }),
   notifications: () => ({ id: randomUUID(), read: false, created_at: new Date().toISOString() }),
@@ -423,6 +428,7 @@ const TABLE_DEFAULTS = {
 // Only the two the controllers actually lean on: profiles and donors are
 // written through upsert, which resolves its own conflicts.
 const UNIQUE_KEYS = {
+  charges: [["appointment_id"]],
   alerts: [["request_id", "donor_user_id"]],
   responses: [["request_id", "donor_user_id"]],
 };

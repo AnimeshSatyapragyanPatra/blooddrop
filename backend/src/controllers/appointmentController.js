@@ -12,6 +12,7 @@ import { notifyInApp } from "../lib/notify.js";
 import { maskName } from "../lib/privacy.js";
 import { facilityView } from "./facilityController.js";
 import { loadRequest } from "./requestController.js";
+import { formatPaise, quote, quoteView } from "../lib/fees.js";
 
 async function facilityById(id) {
   const { data } = await supabase.from("facilities").select("*").eq("id", id).maybeSingle();
@@ -109,16 +110,59 @@ export async function bookSlot(req, res) {
     saved = data;
   }
 
+  // Price the collection and attach it to the booking. The payer is the
+  // requester — never the donor, who is not paid and is not billed.
+  const priced = quote({
+    processingFeePaise: facility.processing_fee_paise || 0,
+    units: request.units_needed,
+  });
+
+  const chargeRow = {
+    appointment_id: saved.id,
+    request_id: request.id,
+    facility_id: facility.id,
+    payer_user_id: request.requester_id,
+    units: priced.units,
+    processing_fee_paise: priced.processingFeePaise,
+    platform_fee_paise: priced.platformFeePaise,
+    total_paise: priced.totalPaise,
+    platform_fee_bps: priced.platformFeeBps,
+    status: priced.totalPaise === 0 ? "waived" : "pending",
+    waived_reason: priced.totalPaise === 0 ? "Facility makes no processing charge" : null,
+  };
+
+  const { data: priorCharge } = await supabase
+    .from("charges")
+    .select("id")
+    .eq("appointment_id", saved.id)
+    .maybeSingle();
+
+  // Re-booking the same response moves the slot; it must not raise a second
+  // charge for one donation.
+  const { error: chargeError } = priorCharge
+    ? await supabase.from("charges").update(chargeRow).eq("id", priorCharge.id)
+    : await supabase.from("charges").insert(chargeRow);
+
+  if (chargeError) {
+    console.error(`[blooddrop] could not record charge for appointment ${saved.id}:`, chargeError.message);
+  }
+
   const when = new Date(saved.scheduled_at).toLocaleString();
   await notifyInApp({
     userId: request.requester_id,
     type: "response",
     title: "A donor booked a donation slot",
-    body: `${maskName(req.user.name)} is booked at ${facility.name} on ${when} for your ${request.blood_group} request.`,
+    body:
+      `${maskName(req.user.name)} is booked at ${facility.name} on ${when} for your ` +
+      `${request.blood_group} request. ${facility.name} charges ${formatPaise(priced.processingFeePaise)} ` +
+      `for ${priced.units} unit(s), plus a ${formatPaise(priced.platformFeePaise)} BloodDrop service fee.`,
     requestId: request.id,
   });
 
-  res.status(201).json({ appointment: appointmentView(saved, { facility, request }) });
+  res.status(201).json({
+    appointment: appointmentView(saved, { facility, request }),
+    charge: quoteView(priced),
+  });
 }
 
 /** Donor cancels their own booking. */

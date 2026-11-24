@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase.js";
 import { haversineKm, isLatLng, roundKm } from "../lib/geo.js";
 import { upcomingSlots } from "../lib/slots.js";
 import { facilityDecision, rankFacilities } from "../lib/recommend.js";
+import { formatPaise } from "../lib/fees.js";
 
 const TYPES = ["hospital", "blood_bank"];
 
@@ -24,6 +25,10 @@ export function facilityView(facility, distanceKm) {
     slotMinutes: facility.slot_minutes,
     licenceRef: facility.licence_ref,
     verified: Boolean(facility.verified),
+    // What this facility charges to collect and issue a unit. Shown before a
+    // slot is picked, so cost is part of choosing rather than a surprise after.
+    processingFeePaise: facility.processing_fee_paise || 0,
+    processingFee: formatPaise(facility.processing_fee_paise || 0),
     ...(distanceKm != null ? { distanceKm } : {}),
   };
 }

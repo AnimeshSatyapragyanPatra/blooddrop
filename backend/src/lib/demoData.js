@@ -148,10 +148,14 @@ export const DEMO_PASSWORD = "Donor123!";
 // [name, type, km, bearing, phone, open, close, slotMinutes, capacity, licence]
 // ---------------------------------------------------------------------------
 
+// ...and the per-unit processing charge in paise. This is the facility's own
+// charge for collecting, testing and issuing a unit — paid by the requester to
+// the facility. No part of it reaches a donor; paying a donor for blood is
+// barred in India. A charge of 0 models a camp or a waiver.
 export const SEED_FACILITIES = [
-  ["Durgapur Mission Hospital Blood Bank", "hospital", 0.5, 0, "+91 90010 00001", "09:00", "17:00", 30, 2, "WB/BB/1180"],
-  ["Durgapur Central Blood Bank", "blood_bank", 2.4, 120, "+91 90010 00002", "08:00", "20:00", 30, 3, "WB/BB/2291"],
-  ["Sadar Hospital Transfusion Unit", "hospital", 3.0, 180, "+91 90010 00003", "10:00", "16:00", 30, 1, "WB/BB/3307"],
+  ["Durgapur Mission Hospital Blood Bank", "hospital", 0.5, 0, "+91 90010 00001", "09:00", "17:00", 30, 2, "WB/BB/1180", 115000],
+  ["Durgapur Central Blood Bank", "blood_bank", 2.4, 120, "+91 90010 00002", "08:00", "20:00", 30, 3, "WB/BB/2291", 105000],
+  ["Sadar Hospital Transfusion Unit", "hospital", 3.0, 180, "+91 90010 00003", "10:00", "16:00", 30, 1, "WB/BB/3307", 0],
 ];
 
 // One desk per facility. Staff only ever see their own facility's queue, so

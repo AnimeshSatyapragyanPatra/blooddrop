@@ -62,13 +62,31 @@ def bullets(items):
     return [Paragraph(f"•&nbsp;&nbsp;{t}", BODY) for t in items]
 
 
+# Cells must be Paragraphs, not bare strings: a string in a reportlab table
+# does not wrap, it overflows the column and is clipped at the page edge.
+CELL = ParagraphStyle("cell", parent=BODY, fontSize=10, leading=13.5,
+                      alignment=TA_LEFT, spaceAfter=0, textColor=INK)
+CELL_H = ParagraphStyle("cellh", parent=CELL, fontName="Times-Bold", textColor=colors.white)
+CELL_B = ParagraphStyle("cellb", parent=CELL, fontName="Times-Bold")
+
+
+def _cells(rows, header):
+    out = []
+    for ri, row in enumerate(rows):
+        line = []
+        for ci, val in enumerate(row):
+            if isinstance(val, str):
+                style = CELL_H if (header and ri == 0) else (CELL_B if (not header and ci == 0) else CELL)
+                line.append(Paragraph(val, style))
+            else:
+                line.append(val)
+        out.append(line)
+    return out
+
+
 def table(rows, widths, header=True):
-    t = Table(rows, colWidths=widths, hAlign="LEFT", repeatRows=1 if header else 0)
+    t = Table(_cells(rows, header), colWidths=widths, hAlign="LEFT", repeatRows=1 if header else 0)
     style = [
-        ("FONTNAME", (0, 0), (-1, -1), "Times-Roman"),
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
-        ("LEADING", (0, 0), (-1, -1), 14),
-        ("TEXTCOLOR", (0, 0), (-1, -1), INK),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("GRID", (0, 0), (-1, -1), 0.5, RULE),
         ("LEFTPADDING", (0, 0), (-1, -1), 7),
@@ -80,12 +98,9 @@ def table(rows, widths, header=True):
         # A solid cherry header band, white bold text — the thin red underline
         # it replaces all but vanished in print.
         style += [("BACKGROUND", (0, 0), (-1, 0), BLOOD),
-                  ("FONTNAME", (0, 0), (-1, 0), "Times-Bold"),
-                  ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
                   ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BAND])]
     else:
-        style += [("FONTNAME", (0, 0), (0, -1), "Times-Bold"),
-                  ("BACKGROUND", (0, 0), (0, -1), BAND)]
+        style += [("BACKGROUND", (0, 0), (0, -1), BAND)]
     t.setStyle(TableStyle(style))
     return t
 
@@ -252,6 +267,36 @@ def project_report(f):
         "than hidden in a score.", BODY)]
 
     s += shot("03-booking.jpg", "Figure 4 — Booking. Slots are derived from each facility's opening hours.")
+
+    s += [Paragraph("2.4 What a collection costs, and who is paid", H2), Paragraph(
+        "Blood collection is not free, and the system is explicit about where the money goes. Two "
+        "parties are paid, and the donor is neither of them.", BODY)]
+    s += [table([
+        ["Charge", "Paid by", "Paid to", "What it covers"],
+        ["Processing fee", "Requester", "Licensed facility",
+         "Collecting, testing, typing, storing and issuing a unit"],
+        ["Service fee", "Requester", "BloodDrop",
+         "Matching, alerting and co-ordinating the donation"],
+        ["Nothing", "—", "Donor",
+         "A donor is never paid for blood, and never billed for giving it"],
+    ], [30 * mm, 26 * mm, 34 * mm, 75 * mm]), Spacer(1, 8)]
+    s += [Paragraph(
+        "The third row is a legal constraint, not a product decision. Paying a donor for blood is "
+        "barred in India: the Supreme Court's 1996 <i>Common Cause</i> judgment ordered professional "
+        "donation abolished, and the Drugs and Cosmetics Rules define a professional donor as one who "
+        "gives blood “for valuable consideration, in cash or kind”. The schema is built so that "
+        "the prohibited case cannot be expressed: the <font face=\"Courier\">charges</font> table has a "
+        "payer and no payee column for a donor, and the pricing module cannot return an amount owed to "
+        "one.", BODY)]
+    s += [Paragraph(
+        "The two charges are quoted separately rather than as a single total, so a requester can see "
+        "what the facility charges and what the platform charges. Amounts are held as integer paise; "
+        "currency in floating point accumulates error as soon as it is summed, and these figures are "
+        "quoted to a person. A charge is resolved when the slot is booked and then frozen — "
+        "recomputing a historical charge from today’s configuration would silently rewrite what "
+        "somebody was quoted. A facility that makes no charge, such as a camp, produces no platform fee "
+        "either: the fee is a share of a charge, not a toll on access.", BODY)]
+
 
     s += [PageBreak()]
     s += [Paragraph("3. Trust and safety", H1), Paragraph(

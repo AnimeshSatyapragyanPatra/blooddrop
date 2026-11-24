@@ -85,6 +85,16 @@ and the person whose number was shown is told who looked. There is also a relay:
 message the other party through the inbox with no number changing hands at all
 ([`contactController.js`](backend/src/controllers/contactController.js)).
 
+**Collection charges.** A booking is priced before it is confirmed: the
+facility's processing charge per unit (collecting, testing, typing, storing,
+issuing) plus a BloodDrop service fee on top, quoted separately so the
+requester can see which is which ([`fees.js`](backend/src/lib/fees.js)). The
+charge is billed to whoever posted the request. **No amount is ever payable to
+a donor** — paying for blood is barred in India, and the schema is built so the
+prohibited case cannot be expressed: `charges` has a payer and no donor payee.
+Amounts are integer paise, resolved at booking and then frozen, so a later
+change to the fee configuration cannot rewrite what somebody was quoted.
+
 **Verified requesters.** Hospitals and blood banks submit a registration number;
 a moderator checks it. The badge is a snapshot taken when the request is posted,
 and cannot be self-assigned.

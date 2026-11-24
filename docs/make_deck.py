@@ -402,6 +402,46 @@ text(s, "They are the only party who witnessed the donation. Letting a requester
         "top would make the reliability score meaningless, since they could credit a friend or punish "
         "a donor who did turn up.", M + 0.35, 4.82, 11.8, 0.7, size=13.5, spacing=1.2)
 
+# 10b — What a collection costs
+s = slide(bg=CREAM)
+title(s, "What a collection costs, and who is paid")
+text(s, "Blood collection is not free. Two parties are paid, and the donor is neither of them.",
+     M, 1.3, W - 2 * M, 0.4, size=14.5)
+rows = [("Charge", "Paid by", "Paid to", "What it covers"),
+        ("Processing fee", "Requester", "Licensed facility", "Collecting, testing, typing, storing, issuing"),
+        ("Service fee", "Requester", "BloodDrop", "Matching, alerting, co-ordinating the donation"),
+        ("Nothing", "—", "Donor", "Never paid for blood, never billed for giving it")]
+ct = s.shapes.add_table(4, 4, Inches(M), Inches(1.82), Inches(W - 2 * M), Inches(0.56 * 4)).table
+for w, col in zip((2.4, 2.0, 2.8, 4.8), ct.columns):
+    col.width = Inches(w)
+for ri, row in enumerate(rows):
+    ct.rows[ri].height = Inches(0.56)
+    for ci, val in enumerate(row):
+        cell = ct.cell(ri, ci)
+        cell.text = ""
+        cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+        cell.margin_left = cell.margin_right = Inches(0.08)
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = BLOOD if ri == 0 else (CREAM if ri == 3 else WHITE)
+        p = cell.text_frame.paragraphs[0]
+        r = p.add_run(); r.text = val
+        r.font.size = Pt(12.5)
+        r.font.bold = ri == 0 or (ri == 3 and ci < 3)
+        r.font.color.rgb = WHITE if ri == 0 else INK
+        r.font.name = BODY_FONT
+card(s, M, 4.3, W - 2 * M, 1.5)
+disc(s, M + 0.3, 4.57, "!", d=0.46, size=15)
+text(s, "The last row is the law, not a product decision", M + 0.95, 4.5, 11.0, 0.38,
+     size=16, bold=True, color=BLOOD)
+text(s, "Paying a donor for blood is barred in India — the 1996 Common Cause judgment, and the Drugs "
+        "and Cosmetics Rules definition of a professional donor as one who gives blood for valuable "
+        "consideration, in cash or kind. The schema cannot express the prohibited case: charges has a "
+        "payer and no donor payee.",
+     M + 0.95, 4.88, 10.85, 0.8, size=13, spacing=1.15)
+notes(s, "Expect: why not just pay donors, wouldn't that fix supply? Because it is illegal here, and the "
+         "reason it is illegal is that paid donors under-report disqualifying history, which is a "
+         "transfusion-safety problem. Quoting the two fees separately is the honest version.")
+
 # 11 — Donor documents
 s = slide()
 title(s, "Proving a blood group")
