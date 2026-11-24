@@ -166,10 +166,25 @@ COVER_B = ParagraphStyle("cb", parent=BODY, alignment=TA_CENTER, fontSize=13, le
                          fontName="Times-Bold", spaceAfter=1)
 
 
+LOGO = OUT / "nitdgp-logo.jpg"
+
+
+def crest(width=22 * mm):
+    """The institute crest, centred above the title. Absent file, absent crest."""
+    if not LOGO.exists():
+        return []
+    from PIL import Image as PILImage
+    w, h = PILImage.open(LOGO).size
+    img = Image(str(LOGO), width=width, height=width * h / w)
+    img.hAlign = "CENTER"
+    return [img, Spacer(1, 8 * mm)]
+
+
 def cover():
     """Title page for the departmental submission."""
-    s = [Spacer(1, 48 * mm),
-         Paragraph("BloodDrop", COVER_T),
+    s = [Spacer(1, 28 * mm)]
+    s += crest()
+    s += [Paragraph("BloodDrop", COVER_T),
          Paragraph("An Emergency Blood Donor Alert Network", COVER_S),
          Paragraph("A location-aware platform connecting blood requests to eligible donors nearby",
                    COVER_M),
